@@ -1,175 +1,82 @@
 <?php
-/*
-Plugin Name: Educational Resources Manager
-Description: Plugin to manage educational resources with metadata
-Version: 1.0
-Author: Your Name
-*/
-
-// Prevent direct access
 if (!defined('ABSPATH')) {
     exit;
 }
 
-// Activation hook
-register_activation_hook(__FILE__, 'erm_create_tables');
+define('ERM_VERSION', '2.0');
+define('ERM_PLUGIN_DIR', plugin_dir_path(__FILE__));
+define('ERM_PLUGIN_URL', plugin_dir_url(__FILE__));
 
-function erm_create_tables() {
-    global $wpdb;
-    $charset_collate = $wpdb->get_charset_collate();
-
-    $sql = "CREATE TABLE IF NOT EXISTS {$wpdb->prefix}educational_resources (
-        id mediumint(9) NOT NULL AUTO_INCREMENT,
-        title text NOT NULL,
-        subtitle text,
-        category varchar(100),
-        author varchar(100),
-        author_email varchar(100),
-        origin varchar(100),
-        country varchar(100),
-        knowledge_area text,
-        knowledge_area_other text,
-        description longtext,
-        publication_date date,
-        last_update date,
-        language varchar(50),
-        school_sequence text,
-        level_other_countries text,
-        file_type varchar(50),
-        visual_format varchar(100),
-        target_user text,
-        skills_competencies text,
-        license text,
-        cab_rating varchar(50),
-        cab_seal varchar(50),
-        submission_date datetime DEFAULT CURRENT_TIMESTAMP,
-        PRIMARY KEY  (id)
-    ) $charset_collate;";
-
-    require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
-    dbDelta($sql);
+// Asegúrate que el directorio includes existe
+if (!file_exists(ERM_PLUGIN_DIR . 'includes')) {
+    mkdir(ERM_PLUGIN_DIR . 'includes', 0755, true);
 }
 
-// Add admin menu
-add_action('admin_menu', 'erm_admin_menu');
-
-function erm_admin_menu() {
-    add_menu_page(
-        'Educational Resources',
-        'Educational Resources',
-        'manage_options',
-        'educational-resources',
-        'erm_admin_page',
-        'dashicons-welcome-learn-more'
-    );
-}
-
-// Admin page display
-function erm_admin_page() {
-    global $wpdb;
-    $resources = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}educational_resources ORDER BY submission_date DESC");
-    ?>
-    <div class="wrap">
-        <h1>Educational Resources</h1>
-        <table class="wp-list-table widefat fixed striped">
-            <thead>
-                <tr>
-                    <th>Title</th>
-                    <th>Author</th>
-                    <th>Category</th>
-                    <th>Submission Date</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($resources as $resource): ?>
-                    <tr>
-                        <td><?php echo esc_html($resource->title); ?></td>
-                        <td><?php echo esc_html($resource->author); ?></td>
-                        <td><?php echo esc_html($resource->category); ?></td>
-                        <td><?php echo esc_html($resource->submission_date); ?></td>
-                    </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
-    </div>
-    <?php
-}
-
-// Shortcode for the submission form
-add_shortcode('educational_resource_form', 'erm_display_form');
-
-function erm_display_form() {
-    ob_start();
+spl_autoload_register(function($class) {
+    $prefix = 'ERM_';
+    if (strpos($class, $prefix) !== 0) {
+        return;
+    }
     
-    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_resource'])) {
-        handle_form_submission();
+    $class_name = str_replace($prefix, '', $class);
+    $file = ERM_PLUGIN_DIR . 'includes/class-erm-' . 
+            strtolower(str_replace('_', '-', $class_name)) . '.php';
+    
+    if (file_exists($file)) {
+        require_once $file;
     }
-    ?>
-    <form method="post" class="educational-resource-form">
-        <div class="form-group">
-            <label>Title *</label>
-            <input type="text" name="title" required>
-        </div>
+});
 
-        <div class="form-group">
-            <label>Subtitle</label>
-            <input type="text" name="subtitle">
-        </div>
+class Educational_Resources_Manager {
+    private static $instance = null;
+    private $database;
+    private $admin;
+    private $form_handler;
+    private $evaluator;
+    
+    public static function get_instance() {
+        if (null === self::$instance) {
+            self::$instance = new self();
+        }
+        return self::$instance;
+    }
+    
+    private function __construct() {
+        $this->init();
+    }
+    
+    private function init() {
+        // Asegúrate que todas las clases necesarias estén disponibles
+        if (!class_exists('ERM_Database')) {
+            require_once ERM_PLUGIN_DIR . 'includes/class-erm-database.php';
+        }
+        if (!class_exists('ERM_Admin')) {
+            require_once ERM_PLUGIN_DIR . 'includes/class-erm-admin.php';
+        }
+        if (!class_exists('ERM_Form_Handler')) {
+            require_once ERM_PLUGIN_DIR . 'includes/class-erm-form-handler.php';
+        }
+        if (!class_exists('ERM_Evaluator')) {
+            require_once ERM_PLUGIN_DIR . 'includes/class-erm-evaluator.php';
+        }
 
-        <div class="form-group">
-            <label>Category *</label>
-            <select name="category" required>
-                <option value="">Select Category</option>
-                <option value="consultation">Resource for Consultation</option>
-                <option value="teacher_support">Teacher Support Resource</option>
-                <option value="complementary">Complementary Didactic Resource</option>
-                <option value="ludic">Ludic Resource</option>
-                <option value="student_work">Student Work Resource</option>
-            </select>
-        </div>
-
-        <div class="form-group">
-            <label>Author *</label>
-            <input type="text" name="author" required>
-        </div>
-
-        <div class="form-group">
-            <label>Author Email *</label>
-            <input type="email" name="author_email" required>
-        </div>
-
-        <!-- Add all other fields following the same pattern -->
-
-        <button type="submit" name="submit_resource">Submit Resource</button>
-    </form>
-    <?php
-    return ob_get_clean();
-}
-
-function handle_form_submission() {
-    global $wpdb;
-
-    $data = array(
-        'title' => sanitize_text_field($_POST['title']),
-        'subtitle' => sanitize_text_field($_POST['subtitle']),
-        'category' => sanitize_text_field($_POST['category']),
-        'author' => sanitize_text_field($_POST['author']),
-        'author_email' => sanitize_email($_POST['author_email']),
-        // Add all other fields here
-    );
-
-    $wpdb->insert("{$wpdb->prefix}educational_resources", $data);
-
-    if ($wpdb->insert_id) {
-        echo '<div class="notice notice-success"><p>Resource submitted successfully!</p></div>';
-    } else {
-        echo '<div class="notice notice-error"><p>Error submitting resource.</p></div>';
+        $this->database = new ERM_Database();
+        $this->admin = new ERM_Admin();
+        $this->form_handler = new ERM_Form_Handler();
+        $this->evaluator = new ERM_Evaluator();
+        
+        register_activation_hook(__FILE__, array($this->database, 'create_tables'));
+        add_action('wp_enqueue_scripts', array($this, 'enqueue_scripts'));
+    }
+    
+    public function enqueue_scripts() {
+        wp_enqueue_style('erm-styles', ERM_PLUGIN_URL . 'assets/css/style.css');
+        wp_enqueue_script('erm-scripts', ERM_PLUGIN_URL . 'assets/js/script.js', array('jquery'));
     }
 }
 
-// Add basic styles
-add_action('wp_enqueue_scripts', 'erm_enqueue_styles');
-
-function erm_enqueue_styles() {
-    wp_enqueue_style('erm-styles', plugins_url('css/style.css', __FILE__));
+function Educational_Resources_Manager() {
+    return Educational_Resources_Manager::get_instance();
 }
+
+$GLOBALS['educational_resources_manager'] = Educational_Resources_Manager();
