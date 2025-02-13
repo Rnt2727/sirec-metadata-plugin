@@ -52,4 +52,10 @@ class ERM_Database {
     public function get_resources() {
         return $this->wpdb->get_results("SELECT * FROM {$this->table_name} ORDER BY id DESC");
     }
+
+    public static function drop_tables() {
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'educational_resources';
+        $wpdb->query("DROP TABLE IF EXISTS $table_name");
+    }
 }

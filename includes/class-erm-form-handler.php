@@ -2,37 +2,36 @@
 class ERM_Form_Handler {
     private $db;
     private $form_submitted = false;
+    private $submission_message = '';
     
     public function __construct() {
         $this->db = new ERM_Database();
         add_shortcode('educational_resource_form', array($this, 'display_form'));
+        
+        // Agregar manejo de AJAX
+        add_action('wp_ajax_submit_resource', array($this, 'handle_ajax_submission'));
+        add_action('wp_ajax_nopriv_submit_resource', array($this, 'handle_ajax_submission'));
     }
     
     public function display_form() {
         ob_start();
         
-        // Verificar nonce para seguridad
-        if ($_SERVER['REQUEST_METHOD'] === 'POST' && 
-            isset($_POST['submit_resource']) && 
-            isset($_POST['resource_form_nonce']) && 
-            wp_verify_nonce($_POST['resource_form_nonce'], 'submit_resource_form')) {
-            
-            $this->handle_submission();
-        }
-        
-        // Solo mostrar el mensaje si el formulario fue enviado exitosamente
-        if ($this->form_submitted) {
-            echo '<div class="notice notice-success"><p>¡Recurso enviado exitosamente!</p></div>';
-        }
-        
+        // Incluir el modal
+        include ERM_PLUGIN_DIR . 'templates/forms/confirmation-modal.php';
         include ERM_PLUGIN_DIR . 'templates/forms/submission-form.php';
+        
         return ob_get_clean();
     }
     
-    private function handle_submission() {
-        // Validar que todos los campos requeridos estén presentes
+    public function handle_ajax_submission() {
+        check_ajax_referer('submit_resource_form', 'nonce');
+        
+        $response = array('success' => false, 'message' => '');
+        
+        // Validar campos requeridos
         if (empty($_POST['title']) || empty($_POST['author']) || empty($_POST['author_email'])) {
-            echo '<div class="notice notice-error"><p>Por favor complete todos los campos requeridos.</p></div>';
+            $response['message'] = 'Por favor complete todos los campos requeridos.';
+            wp_send_json($response);
             return;
         }
         
@@ -62,14 +61,13 @@ class ERM_Form_Handler {
         
         $result = $this->db->insert_resource($data);
         
-        if ($result === false) {
-            echo '<div class="notice notice-error"><p>Error al enviar el recurso.</p></div>';
+        if ($result) {
+            $response['success'] = true;
+            $response['message'] = '¡Recurso enviado exitosamente!';
         } else {
-            $this->form_submitted = true;
-            
-            // Redirigir para evitar reenvíos al refrescar
-            wp_redirect(add_query_arg('submitted', 'true', wp_get_referer()));
-            exit;
+            $response['message'] = 'Hubo un error al guardar el recurso.';
         }
+        
+        wp_send_json($response);
     }
 }

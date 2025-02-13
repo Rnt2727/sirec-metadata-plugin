@@ -1,4 +1,4 @@
-<form method="post" class="educational-resource-form">
+<form id="educational-resource-form" class="educational-resource-form">
     <?php wp_nonce_field('submit_resource_form', 'resource_form_nonce'); ?>
     <h2>Enviar Recurso Educativo</h2>
     
@@ -124,3 +124,40 @@
     
     <button type="submit" name="submit_resource">Enviar Recurso</button>
 </form>
+
+
+<script>
+jQuery(document).ready(function($) {
+    $('#educational-resource-form').on('submit', function(e) {
+        e.preventDefault();
+        
+        var formData = new FormData(this);
+        formData.append('action', 'submit_resource');
+        formData.append('nonce', $('#resource_form_nonce').val());
+        
+        $.ajax({
+            url: ajaxurl,
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(response) {
+                if (response.success) {
+                    $('#confirmation-modal').show();
+                    $('#educational-resource-form')[0].reset();
+                } else {
+                    alert(response.message);
+                }
+            },
+            error: function() {
+                alert('Hubo un error al procesar su solicitud.');
+            }
+        });
+    });
+    
+    $('#modal-close').on('click', function() {
+        $('#confirmation-modal').hide();
+        window.location.href = '/'; // Redirigir al inicio
+    });
+});
+</script>

@@ -1,11 +1,24 @@
 <?php
+
+/*
+Plugin Name: SIREC Metadata Plugin
+Plugin URI: 
+Description: Plugin para gestionar recursos educativos y sus metadatos
+Version: 2.0
+Author: SIREC
+Author URI: 
+License: GPL v2 or later
+Text Domain: sirec-metadata
+*/
+
 if (!defined('ABSPATH')) {
-    exit;
+    exit; 
 }
 
 define('ERM_VERSION', '2.0');
 define('ERM_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('ERM_PLUGIN_URL', plugin_dir_url(__FILE__));
+register_uninstall_hook(__FILE__, array('ERM_Database', 'drop_tables'));
 
 // Asegúrate que el directorio includes existe
 if (!file_exists(ERM_PLUGIN_DIR . 'includes')) {
