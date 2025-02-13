@@ -1,14 +1,12 @@
-/* Importar la fuente Nunito Sans */
-@import url('https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;700;900&display=swap');
 
-/* Estilos generales */
 .educational-resource-form {
-    max-width: 1000px;
-    margin: 40px auto;
-    padding: 30px;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 20px 0px !important;
     background-color: #ffffff;
-    border-radius: 10px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 0 !important;
+    box-shadow: none !important;
     font-family: 'Nunito Sans', sans-serif;
     color: #333;
 }
@@ -21,27 +19,47 @@
     font-weight: 700;
 }
 
-/* Contenedor de columnas */
 .form-columns {
     display: flex;
+    flex-wrap: wrap;
     gap: 30px;
+    width: 100%;
+    margin: 0 !important;
+    padding: 0 !important;
 }
 
 .form-column {
-    flex: 1;
+    flex: 1 1 100%;
+    min-width: 250px;
+    padding: 0 !important;
 }
 
-/* Estilos para los grupos de formulario */
+.elementor-widget-shortcode,
+.elementor-widget-container,
+.entry-content,
+.site-content,
+.elementor-section {
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
 .form-group {
-    margin-bottom: 20px;
+    margin-bottom: 15px;
+    width: 100%;
 }
 
 .form-group label {
     display: block;
     margin-bottom: 8px;
-    font-weight: 600;
-    color: #555;
-    font-size: 14px;
+    font-weight: 700; /* Cambiado de 600 a 500 */
+    color: #3d3d3d; /* Cambiado de #555 al color solicitado */
+    font-size: 16px;
+}
+
+/* Si quieres mantener el asterisco (*) del mismo color */
+.form-group label::after {
+    content: ' *';
+    color: #01a6d5; /* Cambiado para mantener consistencia */
 }
 
 .form-group input[type="text"],
@@ -53,11 +71,28 @@
     padding: 12px;
     border: 1px solid #ddd;
     border-radius: 6px;
-    font-size: 14px;
+    font-size: 16px;
     color: #333;
     background-color: #f9f9f9;
-    transition: border-color 0.3s ease;
+    transition: all 0.3s ease;
     font-family: 'Nunito Sans', sans-serif;
+    border-left: 4px solid #ddd; /* Borde gris por defecto */
+}
+
+.form-group input.filled,
+.form-group select.filled,
+.form-group textarea.filled {
+    border-left: 4px solid #01a6d5;
+    background-color: #fff;
+}
+
+.form-group input[type="text"]:valid,
+.form-group input[type="email"]:valid,
+.form-group input[type="date"]:valid,
+.form-group select:valid,
+.form-group textarea:valid {
+    border-left: 4px solid #01a6d5;
+    background-color: #fff;
 }
 
 .form-group input[type="text"]:focus,
@@ -65,9 +100,10 @@
 .form-group input[type="date"]:focus,
 .form-group select:focus,
 .form-group textarea:focus {
-    border-color: #0073aa;
+    border-color: #01a6d5;
     outline: none;
     background-color: #fff;
+    box-shadow: 0 0 5px rgba(0,115,170,0.2);
 }
 
 .form-group textarea {
@@ -75,7 +111,6 @@
     resize: vertical;
 }
 
-/* Estilos para el botón de envío */
 button[type="submit"] {
     background-color: #0073aa;
     color: white;
@@ -96,37 +131,6 @@ button[type="submit"]:hover {
     background-color: #005177;
 }
 
-/* Estilos para los campos requeridos */
-.form-group input:required,
-.form-group select:required {
-    border-left: 4px solid #0073aa;
-}
-
-/* Estilos para los campos opcionales */
-.form-group input:optional,
-.form-group select:optional {
-    border-left: 4px solid #ddd;
-}
-
-/* Estilos para los mensajes de error */
-.form-group .error-message {
-    color: #ff0000;
-    font-size: 12px;
-    margin-top: 5px;
-    display: none;
-}
-
-.form-group.error input,
-.form-group.error select,
-.form-group.error textarea {
-    border-color: #ff0000;
-}
-
-.form-group.error .error-message {
-    display: block;
-}
-
-/* Estilos para el modal */
 .modal {
     display: none;
     position: fixed;
@@ -168,4 +172,41 @@ button[type="submit"]:hover {
 
 .modal-content button:hover {
     background-color: #005177;
+}
+
+@media screen and (min-width: 768px) {
+    .form-column {
+        flex: 1 1 calc(50% - 20px);
+    }
+}
+
+@media screen and (min-width: 1024px) {
+    .form-column {
+        flex: 1 1 calc(33.333% - 20px);
+    }
+}
+
+@media screen and (max-width: 767px) {
+    .educational-resource-form {
+        margin: 20px auto;
+        padding: 15px;
+    }
+    .form-group {
+        margin-bottom: 15px;
+    }
+    .form-group label {
+        font-size: 13px;
+    }
+    .form-group input[type="text"],
+    .form-group input[type="email"],
+    .form-group input[type="date"],
+    .form-group select,
+    .form-group textarea {
+        padding: 10px;
+        font-size: 13px;
+    }
+    button[type="submit"] {
+        padding: 12px 24px;
+        font-size: 14px;
+    }
 }
