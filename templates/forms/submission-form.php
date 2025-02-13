@@ -5,7 +5,12 @@
     <div class="form-columns">
         <div class="form-column">
             <div class="form-group">
-                <label for="title">1. Título del recurso</label>
+                <label for="title">
+                    1. Título del recurso
+                    <span class="info-icon">?
+                        <span class="tooltip"></span>
+                    </span>
+                </label>
                 <input type="text" id="title" name="title" required>
             </div>
             <div class="form-group">
@@ -24,16 +29,25 @@
                 </select>
             </div>
             <div class="form-group">
-                <label for="author">4. Autor</label>
+                <label for="author">4. Autor
+                    <span class="info-icon">?
+                        <span class="tooltip"></span>
+                    </span>
+                </label>
                 <input type="text" id="author" name="author" required>
             </div>
             <div class="form-group">
-                <label for="author_email">5. Correo del Autor *</label>
+                <label for="author_email">5. Correo del Autor</label>
                 <input type="email" id="author_email" name="author_email" required>
             </div>
             <div class="form-group">
-                <label for="origin">6. Origen</label>
-                <input type="text" id="origin" name="origin">
+                <label for="origin">6. Procedencia / Lugar de publicación
+                <span class="info-icon">?
+                        <span class="tooltip"></span>
+                </span>
+                </label>
+                
+                <input type="text" id="origin" name="origin" required>
             </div>
             <div class="form-group">
                 <label for="country">7. País</label>
@@ -106,6 +120,37 @@
 
 <script>
 jQuery(document).ready(function($) {
+    /*Tooltip inicio*/
+    const fieldDescriptions = {
+        'title': 'Nombre completo del recurso educativo',
+        'subtitle': 'Subtítulo o nombre alternativo del recurso',
+        'category': 'Tipo de recurso según su uso principal',
+        'author': 'Persona que figure como creador o elaborador del recurso educativo y que tenga el derecho de autor.',
+        'author_email': 'Correo electrónico de contacto del autor',
+        'origin': 'Es en nombre del país u organización internacional de procedencia del RE',
+        'country': 'País de origen del recurso',
+        'knowledge_area': 'Es la disciplina o campo del saber al que se asocia el Recurso Educativo',
+        'description': 'Descripción detallada del contenido y objetivo del recurso',
+        'publication_date': 'Fecha en que se publicó el recurso',
+        'language': 'Idioma principal del recurso',
+        'school_sequence': 'Nivel educativo al que está dirigido',
+        'level_other_countries': 'Equivalencia del nivel educativo en otros países',
+        'file_type': 'Formato del archivo (PDF, DOC, etc.)',
+        'visual_format': 'Formato visual del recurso',
+        'target_user': 'Usuario final al que está dirigido el recurso',
+        'skills_competencies': 'Habilidades y competencias que desarrolla',
+        'license': 'Tipo de licencia de uso del recurso',
+        'cab_rating': 'Calificación asignada por el CAB',
+        'cab_seal': 'Sello de calidad del CAB'
+    };
+
+    $('.info-icon').each(function() {
+        const fieldId = $(this).closest('.form-group').find('input, select, textarea').attr('id');
+        $(this).find('.tooltip').text(fieldDescriptions[fieldId]);
+    });
+
+    /*Tooltip final*/
+
     function checkIfFilled(element) {
         if (element.value.trim() !== '') {
             element.classList.add('filled');
