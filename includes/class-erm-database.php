@@ -23,7 +23,7 @@ class ERM_Database {
             origin varchar(100),
             country varchar(100),
             knowledge_area text,
-            knowledge_area_other text,
+            knowledge_area_other_countries text,
             description longtext,
             publication_date date,
             last_update date,

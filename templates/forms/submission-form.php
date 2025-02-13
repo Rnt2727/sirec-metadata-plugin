@@ -42,23 +42,35 @@
             </div>
             <div class="form-group">
                 <label for="origin">6. Procedencia / Lugar de publicación
-                <span class="info-icon">?
-                        <span class="tooltip"></span>
-                </span>
+                    <span class="info-icon">?
+                            <span class="tooltip"></span>
+                    </span>
                 </label>
                 
                 <input type="text" id="origin" name="origin" required>
             </div>
             <div class="form-group">
                 <label for="country">7. País</label>
-                <input type="text" id="country" name="country">
+                <input type="text" id="country" name="country" required>
             </div>
-        </div>
-        
-        <div class="form-column">
             <div class="form-group">
                 <label for="knowledge_area">8. Área de Conocimiento</label>
-                <input type="text" id="knowledge_area" name="knowledge_area">
+                <input type="text" id="knowledge_area" name="knowledge_area" required>
+            </div>
+            <div class="form-group">
+                <label for="knowledge_area_other_countries">9. Área de conocimiento en otros Países
+                    <span class="info-icon">?
+                        <span class="tooltip"></span>
+                    </span>
+                </label>
+                <div class="tags-input-container">
+                    <div class="input-button-group">
+                        <input type="text" id="knowledge_area_other_countries_input" placeholder="Escribe el área de conocimiento">
+                        <button type="button" id="add-tag-btn" class="add-tag-button">Agregar</button>
+                    </div>
+                    <div id="tags-container"></div>
+                    <input type="hidden" id="knowledge_area_other_countries" name="knowledge_area_other_countries" required>
+                </div>
             </div>
             <div class="form-group">
                 <label for="description">9. Descripción</label>
@@ -72,6 +84,10 @@
                 <label for="language">11. Idioma</label>
                 <input type="text" id="language" name="language">
             </div>
+        </div>
+        
+       
+        <div class="form-column">
             <div class="form-group">
                 <label for="school_sequence">12. Secuencia Escolar</label>
                 <input type="text" id="school_sequence" name="school_sequence">
@@ -84,9 +100,6 @@
                 <label for="file_type">14. Tipo de Archivo</label>
                 <input type="text" id="file_type" name="file_type">
             </div>
-        </div>
-
-        <div class="form-column">
             <div class="form-group">
                 <label for="visual_format">15. Formato Visual</label>
                 <input type="text" id="visual_format" name="visual_format">
@@ -130,6 +143,7 @@ jQuery(document).ready(function($) {
         'origin': 'Es en nombre del país u organización internacional de procedencia del RE',
         'country': 'País de origen del recurso',
         'knowledge_area': 'Es la disciplina o campo del saber al que se asocia el Recurso Educativo',
+        'knowledge_area_other_countries': 'Son palabras clave asociadas al contenido, temática, habilidad, destreza, competencias, etc.',
         'description': 'Descripción detallada del contenido y objetivo del recurso',
         'publication_date': 'Fecha en que se publicó el recurso',
         'language': 'Idioma principal del recurso',
@@ -145,8 +159,12 @@ jQuery(document).ready(function($) {
     };
 
     $('.info-icon').each(function() {
-        const fieldId = $(this).closest('.form-group').find('input, select, textarea').attr('id');
-        $(this).find('.tooltip').text(fieldDescriptions[fieldId]);
+        // Obtener el ID del campo desde el atributo "for" del label
+        const fieldId = $(this).closest('.form-group').find('label').attr('for');
+        const tooltipText = fieldDescriptions[fieldId];
+        if (tooltipText) {
+            $(this).find('.tooltip').text(tooltipText);
+        }
     });
 
     /*Tooltip final*/
@@ -162,19 +180,13 @@ jQuery(document).ready(function($) {
     const formFields = document.querySelectorAll('.form-group input, .form-group select, .form-group textarea');
     
     formFields.forEach(field => {
-        // Verificar estado inicial
         checkIfFilled(field);
-        
-        // Verificar en cada cambio
         field.addEventListener('input', function() {
             checkIfFilled(this);
         });
-        
         field.addEventListener('change', function() {
             checkIfFilled(this);
         });
-        
-        // Para select, verificar también cuando se selecciona una opción
         if (field.tagName === 'SELECT') {
             field.addEventListener('change', function() {
                 checkIfFilled(this);
@@ -182,7 +194,62 @@ jQuery(document).ready(function($) {
         }
     });
 
+    // Sistema de tags mejorado
+    const tagsInput = $('#knowledge_area_other_countries_input');
+    const tagsContainer = $('#tags-container');
+    const hiddenInput = $('#knowledge_area_other_countries');
+    const addTagBtn = $('#add-tag-btn');
+    let tags = [];
 
+    function updateTags() {
+        tagsContainer.html('');
+        tags.forEach(tag => {
+            const tagElement = $(`
+                <span class="tag">
+                    ${tag}
+                    <span class="tag-remove">×</span>
+                </span>
+            `);
+            
+            tagElement.find('.tag-remove').click(() => {
+                tags = tags.filter(t => t !== tag);
+                updateTags();
+                updateHiddenInput();
+            });
+            
+            tagsContainer.append(tagElement);
+        });
+    }
+
+    function updateHiddenInput() {
+        hiddenInput.val(tags.join(','));
+    }
+
+    function addTag() {
+        const value = tagsInput.val().trim();
+        
+        if (value && !tags.includes(value)) {
+            tags.push(value);
+            updateTags();
+            updateHiddenInput();
+            tagsInput.val('');
+        }
+    }
+
+    // Event listeners para tags
+    addTagBtn.on('click', function(e) {
+        e.preventDefault();
+        addTag();
+    });
+
+    tagsInput.on('keypress', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            addTag();
+        }
+    });
+
+    // Manejo del formulario
     $('#educational-resource-form').on('submit', function(e) {
         e.preventDefault();
         
@@ -200,6 +267,9 @@ jQuery(document).ready(function($) {
                 if (response.success) {
                     $('#confirmation-modal').show();
                     $('#educational-resource-form')[0].reset();
+                    // Limpiar los tags también
+                    tags = [];
+                    updateTags();
                 } else {
                     alert(response.message);
                 }
@@ -212,7 +282,7 @@ jQuery(document).ready(function($) {
     
     $('#modal-close').on('click', function() {
         $('#confirmation-modal').hide();
-        window.location.href = '/'; // Redirigir al inicio
+        window.location.href = '/';
     });
 });
 </script>

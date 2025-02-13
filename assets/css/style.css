@@ -210,7 +210,6 @@ button[type="submit"]:hover {
     line-height: 1.2;
 }
 
-/* Flecha del tooltip */
 .tooltip::before {
     content: '';
     position: absolute;
@@ -222,11 +221,75 @@ button[type="submit"]:hover {
     border-color: transparent #333 transparent transparent;
 }
 
-/* Mostrar tooltip al hover */
 .info-icon:hover .tooltip {
     visibility: visible;
     opacity: 1;
 }
+/*tooltip fin */
+
+/*inicio tags*/
+.tags-input-container {
+    border: 1px solid #ddd;
+    padding: 10px;
+    border-radius: 4px;
+}
+
+#tags-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-top: 10px;
+}
+
+.tag {
+    background: #e0e0e0;
+    padding: 5px 10px;
+    border-radius: 15px;
+    display: inline-flex;
+    align-items: center;
+    margin: 2px;
+}
+
+.tag-remove {
+    margin-left: 5px;
+    cursor: pointer;
+    color: #025e89;
+}
+
+.tag-remove:hover {
+    color: #b5b5b5;
+}
+.input-button-group {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.add-tag-button {
+    background-color: #0297dc;
+    color: white;
+    padding: 8px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.add-tag-button:hover {
+    background-color: #025e89;
+}
+
+.tag {
+    background: #e0e0e0;
+    padding: 5px 10px;
+    border-radius: 25px;
+    display: inline-flex;
+    align-items: center;
+    margin: 2px;
+    background-color: #01a6d5;
+    color: white;
+}
+/*fin tags*/
 
 
 @media screen and (min-width: 768px) {

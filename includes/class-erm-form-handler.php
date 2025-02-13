@@ -44,7 +44,7 @@ class ERM_Form_Handler {
             'origin' => sanitize_text_field($_POST['origin']),
             'country' => sanitize_text_field($_POST['country']),
             'knowledge_area' => sanitize_text_field($_POST['knowledge_area']),
-            'knowledge_area_other' => sanitize_text_field($_POST['knowledge_area_other']),
+            'knowledge_area_other_countries' => sanitize_text_field($_POST['knowledge_area_other_countries']),
             'description' => sanitize_textarea_field($_POST['description']),
             'publication_date' => sanitize_text_field($_POST['publication_date']),
             'last_update' => current_time('Y-m-d'),
