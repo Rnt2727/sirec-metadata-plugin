@@ -1,16 +1,47 @@
+/* Importar la fuente Nunito Sans */
+@import url('https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;700&display=swap');
+
+/* Estilos generales */
 .educational-resource-form {
-    max-width: 800px;
-    margin: 20px auto;
+    max-width: 1000px;
+    margin: 40px auto;
+    padding: 30px;
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    font-family: 'Nunito Sans', sans-serif;
+    color: #333;
 }
 
+.educational-resource-form h2 {
+    font-size: 28px;
+    margin-bottom: 30px;
+    color: #0073aa;
+    text-align: center;
+    font-weight: 700;
+}
+
+/* Contenedor de columnas */
+.form-columns {
+    display: flex;
+    gap: 30px;
+}
+
+.form-column {
+    flex: 1;
+}
+
+/* Estilos para los grupos de formulario */
 .form-group {
-    margin-bottom: 15px;
+    margin-bottom: 20px;
 }
 
 .form-group label {
     display: block;
-    margin-bottom: 5px;
-    font-weight: bold;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #555;
+    font-size: 14px;
 }
 
 .form-group input[type="text"],
@@ -19,24 +50,78 @@
 .form-group select,
 .form-group textarea {
     width: 100%;
-    padding: 8px;
+    padding: 12px;
     border: 1px solid #ddd;
-    border-radius: 4px;
+    border-radius: 6px;
+    font-size: 14px;
+    color: #333;
+    background-color: #f9f9f9;
+    transition: border-color 0.3s ease;
+    font-family: 'Nunito Sans', sans-serif;
+}
+
+.form-group input[type="text"]:focus,
+.form-group input[type="email"]:focus,
+.form-group input[type="date"]:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    border-color: #0073aa;
+    outline: none;
+    background-color: #fff;
 }
 
 .form-group textarea {
-    height: 100px;
+    height: 120px;
+    resize: vertical;
 }
 
+/* Estilos para el botón de envío */
 button[type="submit"] {
     background-color: #0073aa;
     color: white;
-    padding: 10px 20px;
+    padding: 14px 28px;
     border: none;
-    border-radius: 4px;
+    border-radius: 6px;
     cursor: pointer;
+    font-size: 16px;
+    font-weight: 600;
+    transition: background-color 0.3s ease;
+    display: block;
+    width: 100%;
+    margin-top: 30px;
+    font-family: 'Nunito Sans', sans-serif;
 }
 
 button[type="submit"]:hover {
     background-color: #005177;
+}
+
+/* Estilos para los campos requeridos */
+.form-group input:required,
+.form-group select:required {
+    border-left: 4px solid #0073aa;
+}
+
+/* Estilos para los campos opcionales */
+.form-group input:optional,
+.form-group select:optional {
+    border-left: 4px solid #ddd;
+}
+
+/* Estilos para los mensajes de error */
+.form-group .error-message {
+    color: #ff0000;
+    font-size: 12px;
+    margin-top: 5px;
+    display: none;
+}
+
+.form-group.error input,
+.form-group.error select,
+.form-group.error textarea {
+    border-color: #ff0000;
+}
+
+.form-group.error .error-message {
+    display: block;
 }

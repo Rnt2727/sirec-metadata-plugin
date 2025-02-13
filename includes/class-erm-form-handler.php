@@ -1,6 +1,7 @@
 <?php
 class ERM_Form_Handler {
     private $db;
+    private $form_submitted = false;
     
     public function __construct() {
         $this->db = new ERM_Database();
@@ -10,8 +11,18 @@ class ERM_Form_Handler {
     public function display_form() {
         ob_start();
         
-        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_resource'])) {
+        // Verificar nonce para seguridad
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && 
+            isset($_POST['submit_resource']) && 
+            isset($_POST['resource_form_nonce']) && 
+            wp_verify_nonce($_POST['resource_form_nonce'], 'submit_resource_form')) {
+            
             $this->handle_submission();
+        }
+        
+        // Solo mostrar el mensaje si el formulario fue enviado exitosamente
+        if ($this->form_submitted) {
+            echo '<div class="notice notice-success"><p>¡Recurso enviado exitosamente!</p></div>';
         }
         
         include ERM_PLUGIN_DIR . 'templates/forms/submission-form.php';
@@ -19,6 +30,12 @@ class ERM_Form_Handler {
     }
     
     private function handle_submission() {
+        // Validar que todos los campos requeridos estén presentes
+        if (empty($_POST['title']) || empty($_POST['author']) || empty($_POST['author_email'])) {
+            echo '<div class="notice notice-error"><p>Por favor complete todos los campos requeridos.</p></div>';
+            return;
+        }
+        
         $data = array(
             'title' => sanitize_text_field($_POST['title']),
             'subtitle' => sanitize_text_field($_POST['subtitle']),
@@ -48,7 +65,11 @@ class ERM_Form_Handler {
         if ($result === false) {
             echo '<div class="notice notice-error"><p>Error al enviar el recurso.</p></div>';
         } else {
-            echo '<div class="notice notice-success"><p>¡Recurso enviado exitosamente!</p></div>';
+            $this->form_submitted = true;
+            
+            // Redirigir para evitar reenvíos al refrescar
+            wp_redirect(add_query_arg('submitted', 'true', wp_get_referer()));
+            exit;
         }
     }
 }
