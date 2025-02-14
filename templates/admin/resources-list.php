@@ -1,6 +1,8 @@
 <?php
 $db = new ERM_Database();
 $resources = $db->get_resources();
+
+
 ?>
 
 <!-- Include Tutor LMS styles -->
@@ -541,6 +543,7 @@ tr.editing td {
 </div>
 
 
+
 <script>
 jQuery(document).ready(function($) {
     // Manejar el botón de editar
@@ -578,55 +581,68 @@ jQuery(document).ready(function($) {
     });
 
     // Manejar el botón de guardar
-    $('.save-btn').on('click', function() {
-        var row = $(this).closest('tr');
-        var resourceId = row.data('resource-id');
-        var data = {
-            action: 'update_resource',
-            nonce: ajax_object.nonce,
-            resource_id: resourceId,
-            resource_data: {}
-        };
+    // Reemplaza el manejador del botón guardar con este código
+$('.save-btn').on('click', function() {
+    var row = $(this).closest('tr');
+    var resourceId = row.data('resource-id');
+    var data = {
+        action: 'update_resource',
+        nonce: ajax_object.nonce,
+        resource_id: resourceId,
+        resource_data: {}
+    };
 
-        // Recolectar todos los valores de los campos
-        row.find('.editable-field').each(function() {
-            data.resource_data[$(this).attr('name')] = $(this).val();
-        });
+    // Recolectar datos
+    row.find('.editable-field').each(function() {
+        var field = $(this);
+        var fieldName = field.attr('name');
+        data.resource_data[fieldName] = field.val();
+    });
 
-        // Mostrar indicador de carga
-        var saveBtn = $(this);
-        saveBtn.prop('disabled', true).html('<span class="loading-spinner"></span>Guardando...');
+    // Mostrar indicador de carga
+    var saveBtn = $(this);
+    saveBtn.prop('disabled', true).html('<span class="loading-spinner"></span>Guardando...');
 
-        // Enviar actualización mediante AJAX
-        $.ajax({
-            url: ajax_object.ajax_url,
-            type: 'POST',
-            data: data,
-            success: function(response) {
-                if(response.success) {
-                    // Actualizar los valores originales
-                    row.find('.editable-field').each(function() {
-                        $(this).attr('value', $(this).val());
+    // Enviar AJAX
+    $.ajax({
+        url: ajax_object.ajax_url,
+        type: 'POST',
+        data: data,
+        success: function(response) {
+            if (response.success) {
+                // Actualizar valores mostrados
+                row.find('.editable-field').each(function() {
+                    var field = $(this);
+                    var fieldName = field.attr('name');
+                    var displayField = row.find('.display-value').filter(function() {
+                        return $(this).closest('td').find('.editable-field').attr('name') === fieldName;
                     });
                     
-                    // Restaurar la interfaz
-                    row.find('.editable-field').prop('readonly', true).prop('disabled', true);
-                    row.find('.edit-btn').show();
-                    row.find('.save-btn, .cancel-btn').hide();
-                    
-                    // Mostrar mensaje de éxito
-                    alert('Recurso actualizado exitosamente');
-                } else {
-                    alert('Error al actualizar el recurso');
-                }
-            },
-            error: function() {
-                alert('Error de conexión');
-            },
-            complete: function() {
-                saveBtn.prop('disabled', false).html('<span>Guardar</span>');
+                    if (displayField.length) {
+                        displayField.text(field.val());
+                    }
+                });
+
+                // Restaurar vista
+                row.find('.display-value').show();
+                row.find('.editable-field').hide();
+                row.find('.edit-btn').show();
+                row.find('.edit-actions').hide();
+                row.removeClass('editing');
+
+                alert('Recurso actualizado exitosamente');
+            } else {
+                alert('Error al actualizar el recurso');
             }
-        });
+        },
+        error: function(xhr, status, error) {
+            alert('Error de conexión: ' + error);
+        },
+        complete: function() {
+            saveBtn.prop('disabled', false).html('<span>Guardar</span>');
+        }
     });
 });
+});
 </script>
+

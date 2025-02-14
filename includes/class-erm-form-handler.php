@@ -11,6 +11,9 @@ class ERM_Form_Handler {
         // Agregar manejo de AJAX
         add_action('wp_ajax_submit_resource', array($this, 'handle_ajax_submission'));
         add_action('wp_ajax_nopriv_submit_resource', array($this, 'handle_ajax_submission'));
+
+        add_action('wp_ajax_update_resource', array($this, 'handle_resource_update'));
+        add_action('wp_ajax_nopriv_update_resource', array($this, 'handle_resource_update'));
     }
     
     public function display_form() {
@@ -21,6 +24,82 @@ class ERM_Form_Handler {
         include ERM_PLUGIN_DIR . 'templates/forms/submission-form.php';
         
         return ob_get_clean();
+    }
+
+    public function handle_resource_update() {
+
+        // Verificar el nonce
+
+        if (!check_ajax_referer('update_resource', 'nonce', false)) {
+
+            wp_send_json_error('Invalid nonce');
+
+            return;
+
+        }
+
+    
+
+        // Verificar que tenemos los datos necesarios
+
+        if (!isset($_POST['resource_id']) || !isset($_POST['resource_data'])) {
+
+            wp_send_json_error('Missing required data');
+
+            return;
+
+        }
+
+    
+
+        $resource_id = intval($_POST['resource_id']);
+
+        $resource_data = $_POST['resource_data'];
+
+    
+
+        // Sanitizar los datos
+
+        $sanitized_data = array();
+
+        foreach ($resource_data as $key => $value) {
+
+            if ($key === 'description') {
+
+                $sanitized_data[$key] = sanitize_textarea_field($value);
+
+            } else {
+
+                $sanitized_data[$key] = sanitize_text_field($value);
+
+            }
+
+        }
+
+    
+
+        // Actualizar el recurso
+
+        $result = $this->db->update_resource($resource_id, $sanitized_data);
+
+    
+
+        if ($result !== false) {
+
+            wp_send_json_success(array(
+
+                'message' => 'Recurso actualizado exitosamente',
+
+                'data' => $sanitized_data
+
+            ));
+
+        } else {
+
+            wp_send_json_error('Error al actualizar el recurso');
+
+        }
+
     }
     
     public function handle_ajax_submission() {

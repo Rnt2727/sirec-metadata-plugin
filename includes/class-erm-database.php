@@ -13,10 +13,12 @@ class ERM_Database {
         return $this->wpdb->update(
             $this->table_name,
             $data,
-            array('id' => $id)
+            array('id' => $id),
+            null,
+            array('%d')
         );
     }
-    
+
     public static function create_tables() {
         global $wpdb;
         $charset_collate = $wpdb->get_charset_collate();

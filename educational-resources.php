@@ -83,8 +83,15 @@ class Educational_Resources_Manager {
     }
     
     public function enqueue_scripts() {
+        wp_enqueue_script('jquery');
         wp_enqueue_style('erm-styles', ERM_PLUGIN_URL . 'assets/css/style.css');
         wp_enqueue_script('erm-scripts', ERM_PLUGIN_URL . 'assets/js/script.js', array('jquery'));
+        
+        // Agregar el objeto ajax_object globalmente
+        wp_localize_script('jquery', 'ajax_object', array(
+            'ajax_url' => admin_url('admin-ajax.php'),
+            'nonce' => wp_create_nonce('update_resource')
+        ));
     }
 }
 
