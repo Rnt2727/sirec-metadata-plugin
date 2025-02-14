@@ -277,6 +277,67 @@ tr.editing td {
     transition: all 0.3s ease;
 }
 
+/**modal evaluate */
+.tutor-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1000;
+}
+
+.tutor-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+}
+
+.tutor-modal-window {
+    position: relative;
+    width: 90%;
+    max-width: 800px;
+    max-height: 90vh;
+    margin: 20px auto;
+    background: white;
+    border-radius: 8px;
+    overflow-y: auto;
+}
+
+.tutor-modal-content {
+    padding: 20px;
+}
+
+.tutor-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #eee;
+}
+
+.tutor-modal-close {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+}
+
+.evaluation-item {
+    margin-bottom: 15px;
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+.evaluation-item select {
+    width: 100px;
+    padding: 5px;
+    margin-top: 5px;
+}
+
 @media (max-width: 768px) {
     .table-outer-wrapper {
         margin: 0 -20px;
@@ -598,10 +659,128 @@ tr.editing td {
     <?php endif; ?>
 </div>
 
+<div id="evaluation-modal" class="tutor-modal" style="display: none;">
+    <div class="tutor-modal-overlay"></div>
+    <div class="tutor-modal-window">
+        <div class="tutor-modal-content">
+            <div class="tutor-modal-header">
+                <h3>Evaluación del Recurso</h3>
+                <button class="tutor-modal-close">&times;</button>
+            </div>
+            <div class="tutor-modal-body">
+                <form id="evaluation-form">
+                    <input type="hidden" id="resource-id-eval" name="resource_id">
+                    <?php
+                    $evaluation_criteria = array(
+                        "Evidencia un propósito educativo e intencionalidad pedagógica",
+                        "El objetivo del RE es fácil de identificar y comprensible",
+                        "Respeta las leyes de derechos de autor",
+                        "El RE se puede contextualizar y reutilizar fácilmente",
+                        "Cumple con leyes de privacidad y protección de datos",
+                        "Presenta referencias según normas de citación",
+                        "Contenido actualizado con fuentes confiables",
+                        "Contenido coherente con fuentes citadas",
+                        "Promueve adaptación para usuarios con necesidades especiales",
+                        "Permite elegir forma de interacción según nivel",
+                        "Proporciona contenido abierto y accesible",
+                        "Es responsivo en diversas plataformas",
+                        "Promueve aprendizaje significativo",
+                        "Brinda herramientas para retomar conocimientos previos",
+                        "Plantea actividades que activan conocimientos previos",
+                        "Proporciona oportunidades de aplicación práctica",
+                        "Promueve actitudes positivas y reconocimiento",
+                        "Mantiene atención e interés del usuario",
+                        "Promueve gestión individual y compartida",
+                        "Fomenta creatividad e innovación",
+                        "Promueve pensamiento crítico y creativo",
+                        "Desarrolla habilidades para decisiones éticas",
+                        "Dispone de guías y tutoriales de uso",
+                        "Libre de publicidad y conflictos de interés"
+                    );
+
+                    foreach($evaluation_criteria as $index => $criterion): ?>
+                        <div class="evaluation-item">
+                            <p><strong><?php echo ($index + 1) . ". " . esc_html($criterion); ?></strong></p>
+                            <select name="criterion_<?php echo $index; ?>" required>
+                                <option value="">Seleccione un puntaje</option>
+                                <option value="0.25">0.25</option>
+                                <option value="0.50">0.50</option>
+                                <option value="1.00">1.00</option>
+                            </select>
+                        </div>
+                    <?php endforeach; ?>
+                    
+                    <div class="tutor-modal-footer">
+                        <button type="submit" class="tutor-btn tutor-btn-primary">Guardar Evaluación</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
 
 
 <script>
 jQuery(document).ready(function($) {
+
+    // Add this to the existing jQuery script in resources-list.php
+
+// Modal handling
+$('.evaluate-btn').on('click', function() {
+    var resourceId = $(this).data('resource-id');
+    $('#resource-id-eval').val(resourceId);
+    $('#evaluation-modal').show();
+});
+
+$('.tutor-modal-close').on('click', function() {
+    $('#evaluation-modal').hide();
+});
+
+// Close modal when clicking outside
+$(window).on('click', function(event) {
+    if ($(event.target).hasClass('tutor-modal-overlay')) {
+        $('#evaluation-modal').hide();
+    }
+});
+
+// Handle evaluation form submission
+$('#evaluation-form').on('submit', function(e) {
+    e.preventDefault();
+    
+    var formData = $(this).serializeArray();
+    var total = 0;
+    
+    // Calculate total score
+    formData.forEach(function(item) {
+        if (item.name.startsWith('criterion_')) {
+            total += parseFloat(item.value);
+        }
+    });
+    
+    $.ajax({
+        url: ajax_object.ajax_url,
+        type: 'POST',
+        data: {
+            action: 'save_evaluation',
+            nonce: ajax_object.nonce,
+            resource_id: $('#resource-id-eval').val(),
+            score: total
+        },
+        success: function(response) {
+            if (response.success) {
+                alert('Evaluación guardada exitosamente');
+                $('#evaluation-modal').hide();
+                location.reload();
+            } else {
+                alert('Error al guardar la evaluación');
+            }
+        },
+        error: function() {
+            alert('Error de conexión');
+        }
+    });
+});
     // Manejar el botón de editar
     $('.edit-btn').on('click', function() {
         var row = $(this).closest('tr');

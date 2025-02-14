@@ -19,6 +19,16 @@ class ERM_Database {
         );
     }
 
+    public function update_evaluation_score($resource_id, $score) {
+        return $this->wpdb->update(
+            $this->table_name,
+            array('evaluation_score' => $score),
+            array('id' => $resource_id),
+            array('%f'),
+            array('%d')
+        );
+    }
+
     public function get_approved_resources() {
         return $this->wpdb->get_results(
             "SELECT * FROM {$this->table_name} 
@@ -68,6 +78,7 @@ class ERM_Database {
             cab_seal varchar(50),
             approved_by_catalogator tinyint(1) DEFAULT NULL,
             rejection_reason text,
+            evaluation_score decimal(5,2) DEFAULT NULL,
             submission_date datetime DEFAULT CURRENT_TIMESTAMP,
             PRIMARY KEY  (id)
         ) $charset_collate;";

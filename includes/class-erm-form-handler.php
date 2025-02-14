@@ -18,6 +18,28 @@ class ERM_Form_Handler {
         add_action('wp_ajax_approve_resource', array($this, 'handle_resource_approval'));
         add_action('wp_ajax_reject_resource', array($this, 'handle_resource_rejection'));
         add_action('wp_ajax_nopriv_reject_resource', array($this, 'handle_resource_rejection'));
+
+        add_action('wp_ajax_save_evaluation', array($this, 'handle_evaluation_submission'));
+    }
+
+    public function handle_evaluation_submission() {
+        check_ajax_referer('update_resource', 'nonce');
+        
+        if (!isset($_POST['resource_id']) || !isset($_POST['score'])) {
+            wp_send_json_error('Datos incompletos');
+            return;
+        }
+        
+        $resource_id = intval($_POST['resource_id']);
+        $score = floatval($_POST['score']);
+        
+        $result = $this->db->update_evaluation_score($resource_id, $score);
+        
+        if ($result !== false) {
+            wp_send_json_success(array('message' => 'Evaluación guardada exitosamente'));
+        } else {
+            wp_send_json_error('Error al guardar la evaluación');
+        }
     }
 
     public function handle_resource_approval() {
