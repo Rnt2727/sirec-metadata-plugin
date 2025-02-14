@@ -19,6 +19,14 @@ class ERM_Database {
         );
     }
 
+    public function get_approved_resources() {
+        return $this->wpdb->get_results(
+            "SELECT * FROM {$this->table_name} 
+             WHERE approved_by_catalogator = 1 
+             ORDER BY id DESC"
+        );
+    }
+
     public function get_resource_by_id($id) {
         return $this->wpdb->get_row(
             $this->wpdb->prepare(

@@ -79,6 +79,24 @@ class Educational_Resources_Manager {
         
         register_activation_hook(__FILE__, array($this->database, 'create_tables'));
         add_action('wp_enqueue_scripts', array($this, 'enqueue_scripts'));
+
+        register_activation_hook(__FILE__, array($this, 'register_plugin_roles'));
+    }
+
+    public function register_plugin_roles() {
+        // Rol Catalogador
+        add_role('catalogator', 'Catalogador', array(
+            'read' => true,
+            'manage_resources' => true,
+            'approve_resources' => true,
+            'edit_resources' => true 
+        ));
+    
+        // Rol Evaluador
+        add_role('evaluator', 'Evaluador', array(
+            'read' => true,
+            'evaluate_resources' => true
+        ));
     }
     
     public function enqueue_scripts() {

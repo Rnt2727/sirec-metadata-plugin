@@ -1,7 +1,28 @@
 <?php
-$db = new ERM_Database();
-$resources = $db->get_resources();
 
+$current_user = wp_get_current_user();
+$user_roles = $current_user->roles;
+
+
+$db = new ERM_Database();
+// $resources = $db->get_resources();
+$db = new ERM_Database();
+
+// Determinar si es catalogador o evaluador
+$is_catalogator = in_array('catalogator', $user_roles) || in_array('administrator', $user_roles);
+$is_evaluator = in_array('evaluator', $user_roles);
+
+if (!$is_catalogator && !$is_evaluator) {
+    wp_die('No tienes permisos para acceder a esta página.');
+}
+
+// Obtener recursos según el rol
+if ($is_catalogator) {
+    $resources = $db->get_resources(); // Obtiene todos los recursos
+} elseif ($is_evaluator) {
+    // Solo obtiene recursos aprobados por el catalogador
+    $resources = $db->get_approved_resources();
+}
 
 ?>
 
@@ -273,7 +294,13 @@ tr.editing td {
 
 <div class="tutor-wrap tutor-dashboard tutor-dashboard-content">
     <div class="tutor-fs-5 tutor-fw-medium tutor-color-black tutor-mb-24">
-        <?php esc_html_e('Recursos Educativos', 'tutor'); ?>
+        <?php 
+        if ($is_catalogator) {
+            echo esc_html('Panel de Catalogador - Recursos Educativos');
+        } else {
+            echo esc_html('Panel de Evaluador - Recursos Educativos Aprobados');
+        }
+        ?>
     </div>
 
     <!-- Filter Section -->
@@ -327,230 +354,236 @@ tr.editing td {
                 </thead>
 
                 <tbody>
-    <?php if($resources && count($resources) > 0): ?>
-        <?php foreach ($resources as $resource): ?>
-            <tr data-resource-id="<?php echo esc_attr($resource->id); ?>">
-                <td>
-                    <span class="tutor-text-regular-body tutor-color-black">
-                        <?php echo esc_html($resource->id); ?>
-                    </span>
-                </td>
-                <td>
-                    <span class="display-value tutor-fs-6 tutor-fw-medium">
-                        <?php echo esc_html($resource->title); ?>
-                    </span>
-                    <input type="text" class="editable-field tutor-fs-6 tutor-fw-medium" name="title" 
-                           value="<?php echo esc_attr($resource->title); ?>" style="display: none;">
-                </td>
-                <td>
-                    <span class="display-value tutor-fs-7">
-                        <?php echo esc_html($resource->subtitle); ?>
-                    </span>
-                    <input type="text" class="editable-field tutor-fs-7" name="subtitle" 
-                           value="<?php echo esc_attr($resource->subtitle); ?>" style="display: none;">
-                </td>
-                <td>
-                    <span class="display-value tutor-badge-outline-primary">
-                        <?php echo esc_html($resource->category); ?>
-                    </span>
-                    <select class="editable-field tutor-badge-outline-primary" name="category" style="display: none;">
-                        <option value="RC" <?php selected($resource->category, 'RC'); ?>>R.C.</option>
-                        <option value="RAD" <?php selected($resource->category, 'RAD'); ?>>R.A.D.</option>
-                        <option value="RDC" <?php selected($resource->category, 'RDC'); ?>>R.D.C.</option>
-                        <option value="RL" <?php selected($resource->category, 'RL'); ?>>R.L.</option>
-                        <option value="RTE" <?php selected($resource->category, 'RTE'); ?>>R.T.E.</option>
-                    </select>
-                </td>
-                <td>
-                    <span class="display-value tutor-fs-7">
-                        <?php echo esc_html($resource->author); ?>
-                    </span>
-                    <input type="text" class="editable-field tutor-fs-7" name="author" 
-                           value="<?php echo esc_attr($resource->author); ?>" style="display: none;">
-                </td>
-                <td>
-                    <span class="display-value tutor-fs-7">
-                        <?php echo esc_html($resource->author_email); ?>
-                    </span>
-                    <input type="email" class="editable-field tutor-fs-7" name="author_email" 
-                           value="<?php echo esc_attr($resource->author_email); ?>" style="display: none;">
-                </td>
-                <td>
-                    <span class="display-value tutor-fs-7">
-                        <?php echo esc_html($resource->origin); ?>
-                    </span>
-                    <input type="text" class="editable-field tutor-fs-7" name="origin" 
-                           value="<?php echo esc_attr($resource->origin); ?>" style="display: none;">
-                </td>
-                <td>
-                    <span class="display-value tutor-fs-7">
-                        <?php echo esc_html($resource->country); ?>
-                    </span>
-                    <input type="text" class="editable-field tutor-fs-7" name="country" 
-                           value="<?php echo esc_attr($resource->country); ?>" style="display: none;">
-                </td>
-                <td>
-                    <span class="display-value tutor-fs-7">
-                        <?php echo esc_html($resource->knowledge_area); ?>
-                    </span>
-                    <input type="text" class="editable-field tutor-fs-7" name="knowledge_area" 
-                           value="<?php echo esc_attr($resource->knowledge_area); ?>" style="display: none;">
-                </td>
-                <td>
-                    <span class="display-value tutor-fs-7">
-                        <?php echo esc_html($resource->knowledge_area_other_countries); ?>
-                    </span>
-                    <input type="text" class="editable-field tutor-fs-7" name="knowledge_area_other_countries" 
-                           value="<?php echo esc_attr($resource->knowledge_area_other_countries); ?>" style="display: none;">
-                </td>
-                <td>
-                    <div class="display-value tutor-fs-7 description-content">
-                        <?php echo esc_html($resource->description); ?>
-                        <button class="tutor-btn tutor-btn-outline-primary tutor-btn-sm toggle-description">
-                            <?php esc_html_e('Ver más', 'tutor'); ?>
-                        </button>
-                    </div>
-                    <textarea class="editable-field tutor-fs-7" name="description" style="display: none;">
-                        <?php echo esc_textarea($resource->description); ?>
-                    </textarea>
-                </td>
-                <td>
-                    <span class="display-value tutor-fs-7">
-                        <?php echo esc_html($resource->publication_date); ?>
-                    </span>
-                    <input type="date" class="editable-field tutor-fs-7" name="publication_date" 
-                           value="<?php echo esc_attr($resource->publication_date); ?>" style="display: none;">
-                </td>
-                <td>
-                    <span class="display-value tutor-fs-7">
-                        <?php echo esc_html($resource->language); ?>
-                    </span>
-                    <input type="text" class="editable-field tutor-fs-7" name="language" 
-                           value="<?php echo esc_attr($resource->language); ?>" style="display: none;">
-                </td>
-                <td>
-                    <span class="display-value tutor-fs-7">
-                        <?php echo esc_html($resource->school_sequence); ?>
-                    </span>
-                    <input type="text" class="editable-field tutor-fs-7" name="school_sequence" 
-                           value="<?php echo esc_attr($resource->school_sequence); ?>" style="display: none;">
-                </td>
-                <td>
-                    <span class="display-value tutor-fs-7">
-                        <?php echo esc_html($resource->age); ?>
-                    </span>
-                    <input type="text" class="editable-field tutor-fs-7" name="age" 
-                           value="<?php echo esc_attr($resource->age); ?>" style="display: none;">
-                </td>
-                <td>
-                    <span class="display-value tutor-fs-7">
-                        <?php echo esc_html($resource->level_other_countries); ?>
-                    </span>
-                    <input type="text" class="editable-field tutor-fs-7" name="level_other_countries" 
-                           value="<?php echo esc_attr($resource->level_other_countries); ?>" style="display: none;">
-                </td>
-                <td>
-                    <span class="display-value tutor-fs-7">
-                        <?php echo esc_html($resource->file_type); ?>
-                    </span>
-                    <input type="text" class="editable-field tutor-fs-7" name="file_type" 
-                           value="<?php echo esc_attr($resource->file_type); ?>" style="display: none;">
-                </td>
-                <td>
-                    <span class="display-value tutor-fs-7">
-                        <?php echo esc_html($resource->visual_format); ?>
-                    </span>
-                    <input type="text" class="editable-field tutor-fs-7" name="visual_format" 
-                           value="<?php echo esc_attr($resource->visual_format); ?>" style="display: none;">
-                </td>
-                <td>
-                    <span class="display-value tutor-fs-7">
-                        <?php echo esc_html($resource->target_user); ?>
-                    </span>
-                    <input type="text" class="editable-field tutor-fs-7" name="target_user" 
-                           value="<?php echo esc_attr($resource->target_user); ?>" style="display: none;">
-                </td>
-                <td>
-                    <span class="display-value tutor-fs-7">
-                        <?php echo esc_html($resource->skills_competencies); ?>
-                    </span>
-                    <input type="text" class="editable-field tutor-fs-7" name="skills_competencies" 
-                           value="<?php echo esc_attr($resource->skills_competencies); ?>" style="display: none;">
-                </td>
-                <td>
-                    <span class="display-value tutor-fs-7">
-                        <?php echo esc_html($resource->license); ?>
-                    </span>
-                    <input type="text" class="editable-field tutor-fs-7" name="license" 
-                           value="<?php echo esc_attr($resource->license); ?>" style="display: none;">
-                </td>
-                <td>
-                    <span class="display-value tutor-fs-7">
-                        <?php echo esc_html($resource->cab_rating); ?>
-                    </span>
-                    <input type="text" class="editable-field tutor-fs-7" name="cab_rating" 
-                           value="<?php echo esc_attr($resource->cab_rating); ?>" style="display: none;">
-                </td>
-                <td>
-                    <span class="display-value tutor-fs-7">
-                        <?php echo esc_html($resource->cab_seal); ?>
-                    </span>
-                    <input type="text" class="editable-field tutor-fs-7" name="cab_seal" 
-                           value="<?php echo esc_attr($resource->cab_seal); ?>" style="display: none;">
-                </td>
-                <td>
-                    <?php if (!isset($resource->approved_by_catalogator) || $resource->approved_by_catalogator === null): ?>
-                        <div class="approval-buttons">
-                            <button type="button" class="tutor-btn tutor-btn-success tutor-btn-sm approve-btn" 
-                                    data-resource-id="<?php echo esc_attr($resource->id); ?>"
-                                    data-author-email="<?php echo esc_attr($resource->author_email); ?>">
-                                Aprobar
-                            </button>
-                            <button type="button" class="tutor-btn tutor-btn-danger tutor-btn-sm reject-btn" 
-                                    data-resource-id="<?php echo esc_attr($resource->id); ?>"
-                                    data-author-email="<?php echo esc_attr($resource->author_email); ?>">
-                                Rechazar
-                            </button>
-                        </div>
+                    <?php if($resources && count($resources) > 0): ?>
+                        <?php foreach ($resources as $resource): ?>
+                            <tr data-resource-id="<?php echo esc_attr($resource->id); ?>">
+                                <td>
+                                    <span class="tutor-text-regular-body tutor-color-black">
+                                        <?php echo esc_html($resource->id); ?>
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="display-value tutor-fs-6 tutor-fw-medium">
+                                        <?php echo esc_html($resource->title); ?>
+                                    </span>
+                                    <input type="text" class="editable-field tutor-fs-6 tutor-fw-medium" name="title" 
+                                        value="<?php echo esc_attr($resource->title); ?>" style="display: none;">
+                                </td>
+                                <td>
+                                    <span class="display-value tutor-fs-7">
+                                        <?php echo esc_html($resource->subtitle); ?>
+                                    </span>
+                                    <input type="text" class="editable-field tutor-fs-7" name="subtitle" 
+                                        value="<?php echo esc_attr($resource->subtitle); ?>" style="display: none;">
+                                </td>
+                                <td>
+                                    <span class="display-value tutor-badge-outline-primary">
+                                        <?php echo esc_html($resource->category); ?>
+                                    </span>
+                                    <select class="editable-field tutor-badge-outline-primary" name="category" style="display: none;">
+                                        <option value="RC" <?php selected($resource->category, 'RC'); ?>>R.C.</option>
+                                        <option value="RAD" <?php selected($resource->category, 'RAD'); ?>>R.A.D.</option>
+                                        <option value="RDC" <?php selected($resource->category, 'RDC'); ?>>R.D.C.</option>
+                                        <option value="RL" <?php selected($resource->category, 'RL'); ?>>R.L.</option>
+                                        <option value="RTE" <?php selected($resource->category, 'RTE'); ?>>R.T.E.</option>
+                                    </select>
+                                </td>
+                                <td>
+                                    <span class="display-value tutor-fs-7">
+                                        <?php echo esc_html($resource->author); ?>
+                                    </span>
+                                    <input type="text" class="editable-field tutor-fs-7" name="author" 
+                                        value="<?php echo esc_attr($resource->author); ?>" style="display: none;">
+                                </td>
+                                <td>
+                                    <span class="display-value tutor-fs-7">
+                                        <?php echo esc_html($resource->author_email); ?>
+                                    </span>
+                                    <input type="email" class="editable-field tutor-fs-7" name="author_email" 
+                                        value="<?php echo esc_attr($resource->author_email); ?>" style="display: none;">
+                                </td>
+                                <td>
+                                    <span class="display-value tutor-fs-7">
+                                        <?php echo esc_html($resource->origin); ?>
+                                    </span>
+                                    <input type="text" class="editable-field tutor-fs-7" name="origin" 
+                                        value="<?php echo esc_attr($resource->origin); ?>" style="display: none;">
+                                </td>
+                                <td>
+                                    <span class="display-value tutor-fs-7">
+                                        <?php echo esc_html($resource->country); ?>
+                                    </span>
+                                    <input type="text" class="editable-field tutor-fs-7" name="country" 
+                                        value="<?php echo esc_attr($resource->country); ?>" style="display: none;">
+                                </td>
+                                <td>
+                                    <span class="display-value tutor-fs-7">
+                                        <?php echo esc_html($resource->knowledge_area); ?>
+                                    </span>
+                                    <input type="text" class="editable-field tutor-fs-7" name="knowledge_area" 
+                                        value="<?php echo esc_attr($resource->knowledge_area); ?>" style="display: none;">
+                                </td>
+                                <td>
+                                    <span class="display-value tutor-fs-7">
+                                        <?php echo esc_html($resource->knowledge_area_other_countries); ?>
+                                    </span>
+                                    <input type="text" class="editable-field tutor-fs-7" name="knowledge_area_other_countries" 
+                                        value="<?php echo esc_attr($resource->knowledge_area_other_countries); ?>" style="display: none;">
+                                </td>
+                                <td>
+                                    <div class="display-value tutor-fs-7 description-content">
+                                        <?php echo esc_html($resource->description); ?>
+                                        <button class="tutor-btn tutor-btn-outline-primary tutor-btn-sm toggle-description">
+                                            <?php esc_html_e('Ver más', 'tutor'); ?>
+                                        </button>
+                                    </div>
+                                    <textarea class="editable-field tutor-fs-7" name="description" style="display: none;">
+                                        <?php echo esc_textarea($resource->description); ?>
+                                    </textarea>
+                                </td>
+                                <td>
+                                    <span class="display-value tutor-fs-7">
+                                        <?php echo esc_html($resource->publication_date); ?>
+                                    </span>
+                                    <input type="date" class="editable-field tutor-fs-7" name="publication_date" 
+                                        value="<?php echo esc_attr($resource->publication_date); ?>" style="display: none;">
+                                </td>
+                                <td>
+                                    <span class="display-value tutor-fs-7">
+                                        <?php echo esc_html($resource->language); ?>
+                                    </span>
+                                    <input type="text" class="editable-field tutor-fs-7" name="language" 
+                                        value="<?php echo esc_attr($resource->language); ?>" style="display: none;">
+                                </td>
+                                <td>
+                                    <span class="display-value tutor-fs-7">
+                                        <?php echo esc_html($resource->school_sequence); ?>
+                                    </span>
+                                    <input type="text" class="editable-field tutor-fs-7" name="school_sequence" 
+                                        value="<?php echo esc_attr($resource->school_sequence); ?>" style="display: none;">
+                                </td>
+                                <td>
+                                    <span class="display-value tutor-fs-7">
+                                        <?php echo esc_html($resource->age); ?>
+                                    </span>
+                                    <input type="text" class="editable-field tutor-fs-7" name="age" 
+                                        value="<?php echo esc_attr($resource->age); ?>" style="display: none;">
+                                </td>
+                                <td>
+                                    <span class="display-value tutor-fs-7">
+                                        <?php echo esc_html($resource->level_other_countries); ?>
+                                    </span>
+                                    <input type="text" class="editable-field tutor-fs-7" name="level_other_countries" 
+                                        value="<?php echo esc_attr($resource->level_other_countries); ?>" style="display: none;">
+                                </td>
+                                <td>
+                                    <span class="display-value tutor-fs-7">
+                                        <?php echo esc_html($resource->file_type); ?>
+                                    </span>
+                                    <input type="text" class="editable-field tutor-fs-7" name="file_type" 
+                                        value="<?php echo esc_attr($resource->file_type); ?>" style="display: none;">
+                                </td>
+                                <td>
+                                    <span class="display-value tutor-fs-7">
+                                        <?php echo esc_html($resource->visual_format); ?>
+                                    </span>
+                                    <input type="text" class="editable-field tutor-fs-7" name="visual_format" 
+                                        value="<?php echo esc_attr($resource->visual_format); ?>" style="display: none;">
+                                </td>
+                                <td>
+                                    <span class="display-value tutor-fs-7">
+                                        <?php echo esc_html($resource->target_user); ?>
+                                    </span>
+                                    <input type="text" class="editable-field tutor-fs-7" name="target_user" 
+                                        value="<?php echo esc_attr($resource->target_user); ?>" style="display: none;">
+                                </td>
+                                <td>
+                                    <span class="display-value tutor-fs-7">
+                                        <?php echo esc_html($resource->skills_competencies); ?>
+                                    </span>
+                                    <input type="text" class="editable-field tutor-fs-7" name="skills_competencies" 
+                                        value="<?php echo esc_attr($resource->skills_competencies); ?>" style="display: none;">
+                                </td>
+                                <td>
+                                    <span class="display-value tutor-fs-7">
+                                        <?php echo esc_html($resource->license); ?>
+                                    </span>
+                                    <input type="text" class="editable-field tutor-fs-7" name="license" 
+                                        value="<?php echo esc_attr($resource->license); ?>" style="display: none;">
+                                </td>
+                                <td>
+                                    <span class="display-value tutor-fs-7">
+                                        <?php echo esc_html($resource->cab_rating); ?>
+                                    </span>
+                                    <input type="text" class="editable-field tutor-fs-7" name="cab_rating" 
+                                        value="<?php echo esc_attr($resource->cab_rating); ?>" style="display: none;">
+                                </td>
+                                <td>
+                                    <span class="display-value tutor-fs-7">
+                                        <?php echo esc_html($resource->cab_seal); ?>
+                                    </span>
+                                    <input type="text" class="editable-field tutor-fs-7" name="cab_seal" 
+                                        value="<?php echo esc_attr($resource->cab_seal); ?>" style="display: none;">
+                                </td>
+                                <td>
+                                    <?php if ($is_catalogator): ?>
+                                        <!-- Mostrar botones de aprobar/rechazar solo para catalogadores -->
+                                        <?php if (!isset($resource->approved_by_catalogator) || $resource->approved_by_catalogator === null): ?>
+                                            <div class="approval-buttons">
+                                                <button type="button" class="tutor-btn tutor-btn-success tutor-btn-sm approve-btn" 
+                                                        data-resource-id="<?php echo esc_attr($resource->id); ?>"
+                                                        data-author-email="<?php echo esc_attr($resource->author_email); ?>">
+                                                    Aprobar
+                                                </button>
+                                                <button type="button" class="tutor-btn tutor-btn-danger tutor-btn-sm reject-btn" 
+                                                        data-resource-id="<?php echo esc_attr($resource->id); ?>"
+                                                        data-author-email="<?php echo esc_attr($resource->author_email); ?>">
+                                                    Rechazar
+                                                </button>
+                                            </div>
+                                        <?php else: ?>
+                                            <span class="tutor-badge-outline-<?php echo $resource->approved_by_catalogator ? 'success' : 'danger'; ?>">
+                                                <?php echo $resource->approved_by_catalogator ? 'Aprobado' : 'Rechazado'; ?>
+                                            </span>
+                                        <?php endif; ?>
+                                    <?php else: ?>
+                                        <!-- Mostrar botones de evaluación para evaluadores -->
+                                        <button type="button" class="tutor-btn tutor-btn-primary tutor-btn-sm evaluate-btn"
+                                                data-resource-id="<?php echo esc_attr($resource->id); ?>">
+                                            Evaluar
+                                        </button>
+                                    <?php endif; ?>
+                                </td>
+                                <td>
+                                    <div class="tutor-d-flex tutor-align-center tutor-gap-1">
+                                        <button type="button" class="tutor-btn tutor-btn-outline-primary tutor-btn-sm edit-btn">
+                                            <span class="tutor-icon-edit"></span>
+                                            <span>Editar</span>
+                                        </button>
+                                        <div class="edit-actions" style="display: none;">
+                                            <button type="button" class="tutor-btn tutor-btn-primary tutor-btn-sm save-btn">
+                                                <span>Guardar</span>
+                                            </button>
+                                            <button type="button" class="tutor-btn tutor-btn-outline-primary tutor-btn-sm cancel-btn">
+                                                <span>Cancelar</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
                     <?php else: ?>
-                        <span class="tutor-badge-outline-<?php echo $resource->approved_by_catalogator ? 'success' : 'danger'; ?>">
-                            <?php echo $resource->approved_by_catalogator ? 'Aprobado' : 'Rechazado'; ?>
-                        </span>
-                        <?php if (!$resource->approved_by_catalogator && isset($resource->rejection_reason)): ?>
-                            <i class="tutor-icon-info" title="<?php echo esc_attr($resource->rejection_reason); ?>"></i>
-                        <?php endif; ?>
+                        <tr>
+                            <td colspan="24">
+                                <div class="tutor-empty-state td-empty-state">
+                                    <div class="tutor-fs-6 tutor-color-secondary tutor-text-center">
+                                        <?php esc_html_e('No hay recursos disponibles.', 'tutor'); ?>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
                     <?php endif; ?>
-                </td>
-                <td>
-                    <div class="tutor-d-flex tutor-align-center tutor-gap-1">
-                        <button type="button" class="tutor-btn tutor-btn-outline-primary tutor-btn-sm edit-btn">
-                            <span class="tutor-icon-edit"></span>
-                            <span>Editar</span>
-                        </button>
-                        <div class="edit-actions" style="display: none;">
-                            <button type="button" class="tutor-btn tutor-btn-primary tutor-btn-sm save-btn">
-                                <span>Guardar</span>
-                            </button>
-                            <button type="button" class="tutor-btn tutor-btn-outline-primary tutor-btn-sm cancel-btn">
-                                <span>Cancelar</span>
-                            </button>
-                        </div>
-                    </div>
-                </td>
-            </tr>
-        <?php endforeach; ?>
-    <?php else: ?>
-        <tr>
-            <td colspan="24">
-                <div class="tutor-empty-state td-empty-state">
-                    <div class="tutor-fs-6 tutor-color-secondary tutor-text-center">
-                        <?php esc_html_e('No hay recursos disponibles.', 'tutor'); ?>
-                    </div>
-                </div>
-            </td>
-        </tr>
-    <?php endif; ?>
-</tbody>
+                </tbody>
             </table>
 </div>
         </div>
