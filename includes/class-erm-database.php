@@ -9,6 +9,14 @@ class ERM_Database {
         $this->table_name = $wpdb->prefix . 'educational_resources';
     }
     
+    public function update_resource($id, $data) {
+        return $this->wpdb->update(
+            $this->table_name,
+            $data,
+            array('id' => $id)
+        );
+    }
+    
     public static function create_tables() {
         global $wpdb;
         $charset_collate = $wpdb->get_charset_collate();
