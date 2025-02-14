@@ -29,7 +29,7 @@ class ERM_Database {
             last_update date,
             language varchar(50),
             school_sequence text,
-            age int,
+            age varchar(10),
             level_other_countries text,
             file_type varchar(50),
             visual_format varchar(100),

@@ -56,7 +56,8 @@ class ERM_Form_Handler {
             'target_user' => sanitize_text_field($_POST['target_user']),
             'license' => sanitize_text_field($_POST['license']),
             'cab_rating' => sanitize_text_field($_POST['cab_rating']),
-            'cab_seal' => sanitize_text_field($_POST['cab_seal'])
+            'cab_seal' => sanitize_text_field($_POST['cab_seal']),
+            'age' => sanitize_text_field($_POST['age']),
         );
         
         $result = $this->db->insert_resource($data);

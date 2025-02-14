@@ -169,7 +169,7 @@ jQuery(document).ready(function($) {
         'knowledge_area_other_countries': 'Son palabras clave asociadas al contenido, temática, habilidad, destreza, competencias, etc.',
         'description': 'Descripción detallada del contenido y objetivo del recurso',
         'publication_date': 'Fecha en que se publicó el recurso',
-        'language': 'Idioma principal del recurso',
+        'language': 'Lengua/s en la que está expresado el recurso educativo',
         'school_sequence': 'Secuencia escolar, se refiere al periodo o etapa en que el estudiante adquiere una habilidad.',
         'level_other_countries': 'Equivalencia del nivel educativo en otros países',
         'file_type': 'Formato del archivo (PDF, DOC, etc.)',
