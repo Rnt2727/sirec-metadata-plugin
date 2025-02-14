@@ -19,6 +19,16 @@ class ERM_Database {
         );
     }
 
+    public function get_resource_by_id($id) {
+        return $this->wpdb->get_row(
+            $this->wpdb->prepare(
+                "SELECT * FROM {$this->table_name} WHERE id = %d",
+                $id
+            )
+        );
+    }
+    
+
     public static function create_tables() {
         global $wpdb;
         $charset_collate = $wpdb->get_charset_collate();

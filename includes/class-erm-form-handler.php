@@ -43,52 +43,107 @@ class ERM_Form_Handler {
     
     public function handle_resource_rejection() {
         check_ajax_referer('update_resource', 'nonce');
-        
         $resource_id = intval($_POST['resource_id']);
         $author_email = sanitize_email($_POST['author_email']);
         $rejection_reason = sanitize_textarea_field($_POST['rejection_reason']);
-        
-        // Actualizar el estado del recurso en la base de datos
-        $data = array(
-            'approved_by_catalogator' => 0,
-            'rejection_reason' => $rejection_reason
-        );
-        
+        $resource = $this->db->get_resource_by_id($resource_id);
+        $data = array('approved_by_catalogator' => 0, 'rejection_reason' => $rejection_reason);
         $result = $this->db->update_resource($resource_id, $data);
         
         if ($result !== false) {
-            // Enviar correo electrónico al autor
-            $subject = 'Tu recurso educativo ha sido rechazado';
-            $message = sprintf(
-                'Estimado autor,
-    
-    Tu recurso educativo (ID: %d) ha sido revisado y no ha sido aprobado.
-    
-    Razón del rechazo:
-    %s
-    
-    Si tienes alguna pregunta, por favor contáctanos.
-    
-    Saludos cordiales,
-    El equipo de SIREC',
-                $resource_id,
-                $rejection_reason
-            );
+            $subject = 'Tu recurso educativo ha sido rechazado - SIREC';
+            $message = '<!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <style>
+                    @media only screen and (max-width: 600px) {
+                        .content-table td {display: block; width: 100% !important;}
+                    }
+                </style>
+            </head>
+            <body style="margin:0;padding:0;font-family:\'Montserrat\',Arial,sans-serif;background-color:#f8f9fa;">
+                <table role="presentation" style="width:100%;border-collapse:collapse;background-color:#ffffff;">
+                    <tr>
+                        <td style="padding:30px 0;text-align:center;border-bottom:3px solid #0093D0;">
+                            <img src="https://convenioandresbello.org/wp-content/uploads/2023/11/logo_CAB_2024.png" alt="Logo CAB" style="max-width:280px;height:auto;">
+                        </td>
+                    </tr>
+                </table>
+                
+                <table role="presentation" style="max-width:600px;margin:30px auto;background-color:#ffffff;border-radius:10px;box-shadow:0 4px 12px rgba(0,0,0,0.1);">
+                    <tr>
+                        <td style="padding:40px 30px;">
+                            <h1 style="color:#1A3D8F;font-size:26px;margin-bottom:25px;border-bottom:2px solid #0093D0;padding-bottom:15px;font-weight:600;">
+                                Notificación de Rechazo de Recurso Educativo
+                            </h1>
+                            
+                            <p style="color:#4a5568;font-size:16px;line-height:1.6;margin-bottom:30px;">
+                                Estimado/a ' . esc_html($resource->author) . ',
+                            </p>
+                            
+                            <div style="background-color:#f8f9fa;border-left:4px solid #0093D0;padding:20px;border-radius:8px;margin-bottom:30px;">
+                                <p style="color:#1A3D8F;font-size:18px;font-weight:600;margin:0;">Motivo del rechazo:</p>
+                                <p style="color:#4a5568;font-size:16px;margin-top:10px;">' . esc_html($rejection_reason) . '</p>
+                            </div>
+                            
+                            <h2 style="color:#1A3D8F;font-size:20px;margin-top:30px;">Detalles del Recurso:</h2>
+                            <table style="width:100%;border-collapse:collapse;margin-top:15px;">
+                                <tr><td style="padding:10px;background-color:#f8f9fa;border:1px solid #e2e8f0;font-weight:bold;">ID:</td><td style="padding:10px;border:1px solid #e2e8f0;">' . esc_html($resource->id) . '</td></tr>
+                                <tr><td style="padding:10px;background-color:#f8f9fa;border:1px solid #e2e8f0;font-weight:bold;">Título:</td><td style="padding:10px;border:1px solid #e2e8f0;">' . esc_html($resource->title) . '</td></tr>
+                                <tr><td style="padding:10px;background-color:#f8f9fa;border:1px solid #e2e8f0;font-weight:bold;">Subtítulo:</td><td style="padding:10px;border:1px solid #e2e8f0;">' . esc_html($resource->subtitle) . '</td></tr>
+                                <tr><td style="padding:10px;background-color:#f8f9fa;border:1px solid #e2e8f0;font-weight:bold;">Categoría:</td><td style="padding:10px;border:1px solid #e2e8f0;">' . esc_html($resource->category) . '</td></tr>
+                                <tr><td style="padding:10px;background-color:#f8f9fa;border:1px solid #e2e8f0;font-weight:bold;">Autor:</td><td style="padding:10px;border:1px solid #e2e8f0;">' . esc_html($resource->author) . '</td></tr>
+                                <tr><td style="padding:10px;background-color:#f8f9fa;border:1px solid #e2e8f0;font-weight:bold;">Email:</td><td style="padding:10px;border:1px solid #e2e8f0;">' . esc_html($resource->author_email) . '</td></tr>
+                                <tr><td style="padding:10px;background-color:#f8f9fa;border:1px solid #e2e8f0;font-weight:bold;">Procedencia:</td><td style="padding:10px;border:1px solid #e2e8f0;">' . esc_html($resource->origin) . '</td></tr>
+                                <tr><td style="padding:10px;background-color:#f8f9fa;border:1px solid #e2e8f0;font-weight:bold;">País:</td><td style="padding:10px;border:1px solid #e2e8f0;">' . esc_html($resource->country) . '</td></tr>
+                                <tr><td style="padding:10px;background-color:#f8f9fa;border:1px solid #e2e8f0;font-weight:bold;">Área de Conocimiento:</td><td style="padding:10px;border:1px solid #e2e8f0;">' . esc_html($resource->knowledge_area) . '</td></tr>
+                                <tr><td style="padding:10px;background-color:#f8f9fa;border:1px solid #e2e8f0;font-weight:bold;">Áreas en Otros Países:</td><td style="padding:10px;border:1px solid #e2e8f0;">' . esc_html($resource->knowledge_area_other_countries) . '</td></tr>
+                                <tr><td style="padding:10px;background-color:#f8f9fa;border:1px solid #e2e8f0;font-weight:bold;">Descripción:</td><td style="padding:10px;border:1px solid #e2e8f0;">' . esc_html($resource->description) . '</td></tr>
+                                <tr><td style="padding:10px;background-color:#f8f9fa;border:1px solid #e2e8f0;font-weight:bold;">Fecha de Publicación:</td><td style="padding:10px;border:1px solid #e2e8f0;">' . esc_html($resource->publication_date) . '</td></tr>
+                                <tr><td style="padding:10px;background-color:#f8f9fa;border:1px solid #e2e8f0;font-weight:bold;">Idioma:</td><td style="padding:10px;border:1px solid #e2e8f0;">' . esc_html($resource->language) . '</td></tr>
+                                <tr><td style="padding:10px;background-color:#f8f9fa;border:1px solid #e2e8f0;font-weight:bold;">Secuencia Escolar:</td><td style="padding:10px;border:1px solid #e2e8f0;">' . esc_html($resource->school_sequence) . '</td></tr>
+                                <tr><td style="padding:10px;background-color:#f8f9fa;border:1px solid #e2e8f0;font-weight:bold;">Edad:</td><td style="padding:10px;border:1px solid #e2e8f0;">' . esc_html($resource->age) . '</td></tr>
+                                <tr><td style="padding:10px;background-color:#f8f9fa;border:1px solid #e2e8f0;font-weight:bold;">Nivel en Otros Países:</td><td style="padding:10px;border:1px solid #e2e8f0;">' . esc_html($resource->level_other_countries) . '</td></tr>
+                                <tr><td style="padding:10px;background-color:#f8f9fa;border:1px solid #e2e8f0;font-weight:bold;">Tipo de Archivo:</td><td style="padding:10px;border:1px solid #e2e8f0;">' . esc_html($resource->file_type) . '</td></tr>
+                                <tr><td style="padding:10px;background-color:#f8f9fa;border:1px solid #e2e8f0;font-weight:bold;">Formato Visual:</td><td style="padding:10px;border:1px solid #e2e8f0;">' . esc_html($resource->visual_format) . '</td></tr>
+                                <tr><td style="padding:10px;background-color:#f8f9fa;border:1px solid #e2e8f0;font-weight:bold;">Usuario Destinatario:</td><td style="padding:10px;border:1px solid #e2e8f0;">' . esc_html($resource->target_user) . '</td></tr>
+                                <tr><td style="padding:10px;background-color:#f8f9fa;border:1px solid #e2e8f0;font-weight:bold;">Habilidades y Competencias:</td><td style="padding:10px;border:1px solid #e2e8f0;">' . esc_html($resource->skills_competencies) . '</td></tr>
+                            </table>
+                            
+                            <div style="background-color:#f8f9fa;border-left:4px solid #0093D0;padding:20px;border-radius:8px;margin-top:35px;">
+                                <p style="color:#1A3D8F;font-size:14px;line-height:1.6;margin:0;">
+                                    <strong>¿Necesitas ayuda?</strong><br>
+                                    Si tienes preguntas sobre el rechazo de tu recurso o necesitas asistencia para mejorarlo,
+                                    no dudes en contactarnos a través de nuestro correo: <a href="mailto:sirec@convenioandresbello.org" style="color:#0093D0;">sirec@convenioandresbello.org</a>
+                                </p>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+                
+                <table role="presentation" style="max-width:600px;margin:20px auto;text-align:center;">
+                    <tr>
+                        <td style="padding:25px 0;">
+                            <p style="color:#666666;font-size:12px;line-height:1.6;">
+                                © ' . date('Y') . ' SIREC - Sistema de Recursos Educativos CAB<br>
+                                Todos los derechos reservados<br>
+                                <a href="https://convenioandresbello.org" style="color:#0093D0;text-decoration:none;">convenioandresbello.org</a>
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+            </body>
+            </html>';
             
             $headers = array('Content-Type: text/html; charset=UTF-8');
-            
             $email_sent = wp_mail($author_email, $subject, $message, $headers);
             
             if ($email_sent) {
-                wp_send_json_success(array(
-                    'message' => 'Recurso rechazado y notificación enviada exitosamente',
-                    'email_sent' => true
-                ));
+                wp_send_json_success(array('message' => 'Recurso rechazado y notificación enviada exitosamente', 'email_sent' => true));
             } else {
-                wp_send_json_success(array(
-                    'message' => 'Recurso rechazado pero hubo un problema al enviar la notificación',
-                    'email_sent' => false
-                ));
+                wp_send_json_success(array('message' => 'Recurso rechazado pero hubo un problema al enviar la notificación', 'email_sent' => false));
             }
         } else {
             wp_send_json_error('Error al rechazar el recurso');
