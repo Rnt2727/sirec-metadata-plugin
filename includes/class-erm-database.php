@@ -34,7 +34,7 @@ class ERM_Database {
             file_type varchar(50),
             visual_format varchar(100),
             target_user text,
-            skills_competencies text,
+            skills_competencies text NOT NULL,
             license text,
             cab_rating varchar(50),
             cab_seal varchar(50),

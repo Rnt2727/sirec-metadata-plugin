@@ -54,6 +54,7 @@ class ERM_Form_Handler {
             'file_type' => sanitize_text_field($_POST['file_type']),
             'visual_format' => sanitize_text_field($_POST['visual_format']),
             'target_user' => sanitize_text_field($_POST['target_user']),
+            'skills_competencies' => sanitize_text_field($_POST['skills_competencies']),
             'license' => sanitize_text_field($_POST['license']),
             'cab_rating' => sanitize_text_field($_POST['cab_rating']),
             'cab_seal' => sanitize_text_field($_POST['cab_seal']),

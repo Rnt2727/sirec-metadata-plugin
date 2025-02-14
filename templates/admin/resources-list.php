@@ -253,6 +253,7 @@ $resources = $db->get_resources();
                         <th width="10%"><?php esc_html_e('Fecha de Publicación', 'tutor'); ?></th>
                         <th width="8%"><?php esc_html_e('Idioma', 'tutor'); ?></th>
                         <th width="10%"><?php esc_html_e('Secuencia Escolar', 'tutor'); ?></th>
+                        <th width="8%"><?php esc_html_e('Edad', 'tutor'); ?></th>
                         <th width="10%"><?php esc_html_e('Nivel en Otros Países', 'tutor'); ?></th>
                         <th width="8%"><?php esc_html_e('Tipo de Archivo', 'tutor'); ?></th>
                         <th width="8%"><?php esc_html_e('Formato Visual', 'tutor'); ?></th>
@@ -304,6 +305,7 @@ $resources = $db->get_resources();
                                 <td><span class="tutor-fs-7"><?php echo esc_html($resource->publication_date); ?></span></td>
                                 <td><span class="tutor-fs-7"><?php echo esc_html($resource->language); ?></span></td>
                                 <td><span class="tutor-fs-7"><?php echo esc_html($resource->school_sequence); ?></span></td>
+                                <td><span class="tutor-fs-7"><?php echo esc_html($resource->age); ?></span></td>
                                 <td><span class="tutor-fs-7"><?php echo esc_html($resource->level_other_countries); ?></span></td>
                                 <td><span class="tutor-fs-7"><?php echo esc_html($resource->file_type); ?></span></td>
                                 <td><span class="tutor-fs-7"><?php echo esc_html($resource->visual_format); ?></span></td>
@@ -324,7 +326,7 @@ $resources = $db->get_resources();
                         <?php endforeach; ?>
                     <?php else: ?>
                         <tr>
-                            <td colspan="23">
+                            <td colspan="24">
                                 <div class="tutor-empty-state td-empty-state">
                                     <div class="tutor-fs-6 tutor-color-secondary tutor-text-center">
                                         <?php esc_html_e('No hay recursos disponibles.', 'tutor'); ?>

@@ -150,7 +150,12 @@
         </div>
     </div>
     
-    <button type="submit" name="submit_resource">Enviar Recurso</button>
+    <button type="submit" name="submit_resource" id="submit-button">
+        <span class="spinner" style="display: none;">
+            <div class="loading-spinner"></div>
+        </span>
+        <span class="button-text">Enviar Recurso</span>
+    </button>
 </form>
 
 
@@ -273,8 +278,29 @@ jQuery(document).ready(function($) {
     });
 
     // Manejo del formulario
+    // Variable para controlar si hay un envío en proceso
+    let isSubmitting = false;
+
     $('#educational-resource-form').on('submit', function(e) {
         e.preventDefault();
+        
+        // Si ya hay un envío en proceso, no hacer nada
+        if (isSubmitting) {
+            return false;
+        }
+        
+        const $form = $(this);
+        const $submitButton = $('#submit-button');
+        const $spinner = $submitButton.find('.spinner');
+        const $buttonText = $submitButton.find('.button-text');
+        
+        // Marcar que hay un envío en proceso
+        isSubmitting = true;
+        
+        // Deshabilitar el botón y mostrar spinner
+        $submitButton.prop('disabled', true);
+        $spinner.show();
+        $buttonText.text('Enviando...');
         
         var formData = new FormData(this);
         formData.append('action', 'submit_resource');
@@ -289,16 +315,25 @@ jQuery(document).ready(function($) {
             success: function(response) {
                 if (response.success) {
                     $('#confirmation-modal').show();
-                    $('#educational-resource-form')[0].reset();
-                    // Limpiar los tags también
+                    $form[0].reset();
+                    // Limpiar los tags
                     tags = [];
+                    languageTags = [];
                     updateTags();
+                    updateLanguageTags();
                 } else {
                     alert(response.message);
                 }
             },
             error: function() {
                 alert('Hubo un error al procesar su solicitud.');
+            },
+            complete: function() {
+                // Restaurar el estado del botón
+                isSubmitting = false;
+                $submitButton.prop('disabled', false);
+                $spinner.hide();
+                $buttonText.text('Enviar Recurso');
             }
         });
     });
