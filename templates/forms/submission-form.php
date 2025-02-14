@@ -73,57 +73,80 @@
                 </div>
             </div>
             <div class="form-group">
-                <label for="description">9. Descripción</label>
-                <textarea id="description" name="description"></textarea>
+                <label for="description">10. Descripción</label>
+                <textarea id="description" name="description" required></textarea>
             </div>
-            <div class="form-group">
-                <label for="publication_date">10. Fecha de Publicación</label>
-                <input type="date" id="publication_date" name="publication_date">
-            </div>
-            <div class="form-group">
-                <label for="language">11. Idioma</label>
-                <input type="text" id="language" name="language">
-            </div>
+            
         </div>
         
        
         <div class="form-column">
+            
             <div class="form-group">
-                <label for="school_sequence">12. Secuencia Escolar</label>
-                <input type="text" id="school_sequence" name="school_sequence">
+                <label for="publication_date">11. Fecha de Publicación</label>
+                <input type="date" id="publication_date" name="publication_date" required>
             </div>
             <div class="form-group">
-                <label for="level_other_countries">13. Nivel en Otros Países</label>
-                <input type="text" id="level_other_countries" name="level_other_countries">
+                <label for="language">12. Idioma
+                <span class="info-icon">?
+                        <span class="tooltip"></span>
+                    </span>
+                </label>
+                <div class="tags-input-container">
+                    <div class="input-button-group">
+                        <input type="text" id="language_input" placeholder="Ingrese un idioma">
+                        <button type="button" id="add-language-btn" class="add-tag-button">Agregar</button>
+                    </div>
+                    <div id="language-tags-container"></div>
+                    <input type="hidden" id="language" name="language" required>
+                </div>
+            </div>
+            <div class="form-group two-columns">
+                <div class="column">
+                    <label for="school_sequence">13. Secuencia Escolar <span class="info-icon">?
+                        <span class="tooltip"></span>
+                    </span>
+                </label></label>
+                    <input type="text" id="school_sequence" name="school_sequence" required>
+                </div>
+                <div class="column">
+                    <label for="age">Edad</label>
+                    <input type="number" id="age" name="age" min="0" max="100" placeholder="Ingrese edad" required>
+                </div>
             </div>
             <div class="form-group">
-                <label for="file_type">14. Tipo de Archivo</label>
-                <input type="text" id="file_type" name="file_type">
+                <label for="level_other_countries">14. Denominación de nivel en otros países
+                <span class="info-icon">?
+                        <span class="tooltip"></span>
+                    </span>
+                </label>
+                <input type="text" id="level_other_countries" name="level_other_countries" required>
             </div>
             <div class="form-group">
-                <label for="visual_format">15. Formato Visual</label>
-                <input type="text" id="visual_format" name="visual_format">
+                <label for="file_type">15. Tipo de archivo (pdf, jpg, png, mp4, otros)</label>
+                <input type="text" id="file_type" name="file_type" required>
             </div>
             <div class="form-group">
-                <label for="target_user">16. Usuario Destinatario</label>
-                <input type="text" id="target_user" name="target_user">
+                <label for="visual_format">16. Formato Visual
+                <span class="info-icon">?
+                        <span class="tooltip"></span>
+                    </span>
+                </label>
+                <input type="text" id="visual_format" name="visual_format" required>
             </div>
             <div class="form-group">
-                <label for="skills_competencies">17. Habilidades y Competencias</label>
-                <input type="text" id="skills_competencies" name="skills_competencies">
+                <label for="target_user">17. Usuario al que está dirigido
+                <span class="info-icon">?
+                        <span class="tooltip"></span>
+                    </span>
+                </label>
+                <input type="text" id="target_user" name="target_user" required>
             </div>
             <div class="form-group">
-                <label for="license">18. Licencia</label>
-                <input type="text" id="license" name="license">
+                <label for="skills_competencies">18. Destrezas, habilidades y/o competencias principales que atiende</label>
+                <input type="text" id="skills_competencies" name="skills_competencies" required>
             </div>
-            <div class="form-group">
-                <label for="cab_rating">19. Calificación CAB</label>
-                <input type="text" id="cab_rating" name="cab_rating">
-            </div>
-            <div class="form-group">
-                <label for="cab_seal">20. Sello CAB</label>
-                <input type="text" id="cab_seal" name="cab_seal">
-            </div>
+            
         </div>
     </div>
     
@@ -147,11 +170,11 @@ jQuery(document).ready(function($) {
         'description': 'Descripción detallada del contenido y objetivo del recurso',
         'publication_date': 'Fecha en que se publicó el recurso',
         'language': 'Idioma principal del recurso',
-        'school_sequence': 'Nivel educativo al que está dirigido',
+        'school_sequence': 'Secuencia escolar, se refiere al periodo o etapa en que el estudiante adquiere una habilidad.',
         'level_other_countries': 'Equivalencia del nivel educativo en otros países',
         'file_type': 'Formato del archivo (PDF, DOC, etc.)',
-        'visual_format': 'Formato visual del recurso',
-        'target_user': 'Usuario final al que está dirigido el recurso',
+        'visual_format': 'Es el modo en que el usuario accede o interactúa con el contenido del recurso educativo (audio, texto, juego, lectura, etc)',
+        'target_user': 'Directivo, investigadores, docentes, padres de familia, estudiantes, etc)',
         'skills_competencies': 'Habilidades y competencias que desarrolla',
         'license': 'Tipo de licencia de uso del recurso',
         'cab_rating': 'Calificación asignada por el CAB',
@@ -284,5 +307,62 @@ jQuery(document).ready(function($) {
         $('#confirmation-modal').hide();
         window.location.href = '/';
     });
+
+    /*inicio tags de idioma*/
+    // Sistema de tags para idiomas
+    const languageInput = $('#language_input');
+    const languageTagsContainer = $('#language-tags-container');
+    const hiddenLanguageInput = $('#language');
+    const addLanguageBtn = $('#add-language-btn');
+    let languageTags = [];
+
+    function updateLanguageTags() {
+        languageTagsContainer.html('');
+        languageTags.forEach(tag => {
+            const tagElement = $(`
+                <span class="tag">
+                    ${tag}
+                    <span class="tag-remove">×</span>
+                </span>
+            `);
+            
+            tagElement.find('.tag-remove').click(() => {
+                languageTags = languageTags.filter(t => t !== tag);
+                updateLanguageTags();
+                updateHiddenLanguageInput();
+            });
+            
+            languageTagsContainer.append(tagElement);
+        });
+    }
+
+    function updateHiddenLanguageInput() {
+        hiddenLanguageInput.val(languageTags.join(','));
+    }
+
+    function addLanguageTag() {
+        const value = languageInput.val().trim();
+        
+        if (value && !languageTags.includes(value)) {
+            languageTags.push(value);
+            updateLanguageTags();
+            updateHiddenLanguageInput();
+            languageInput.val('');
+        }
+    }
+
+    // Event listeners para idiomas
+    addLanguageBtn.on('click', function(e) {
+        e.preventDefault();
+        addLanguageTag();
+    });
+
+    languageInput.on('keypress', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            addLanguageTag();
+        }
+    });
+    /**fin tags de idiomas */
 });
 </script>
