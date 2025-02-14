@@ -48,6 +48,8 @@ class ERM_Database {
             license text,
             cab_rating varchar(50),
             cab_seal varchar(50),
+            approved_by_catalogator tinyint(1) DEFAULT NULL,
+            rejection_reason text,
             submission_date datetime DEFAULT CURRENT_TIMESTAMP,
             PRIMARY KEY  (id)
         ) $charset_collate;";

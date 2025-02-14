@@ -14,6 +14,85 @@ class ERM_Form_Handler {
 
         add_action('wp_ajax_update_resource', array($this, 'handle_resource_update'));
         add_action('wp_ajax_nopriv_update_resource', array($this, 'handle_resource_update'));
+
+        add_action('wp_ajax_approve_resource', array($this, 'handle_resource_approval'));
+        add_action('wp_ajax_reject_resource', array($this, 'handle_resource_rejection'));
+        add_action('wp_ajax_nopriv_reject_resource', array($this, 'handle_resource_rejection'));
+    }
+
+    public function handle_resource_approval() {
+        check_ajax_referer('update_resource', 'nonce');
+        
+        $resource_id = intval($_POST['resource_id']);
+        $author_email = sanitize_email($_POST['author_email']);
+        
+        $data = array(
+            'approved_by_catalogator' => 1,
+            'rejection_reason' => null
+        );
+        
+        $result = $this->db->update_resource($resource_id, $data);
+        
+        if ($result !== false) {
+            // Aquí podrías agregar código para enviar un email al autor
+            wp_send_json_success(array('message' => 'Recurso aprobado exitosamente'));
+        } else {
+            wp_send_json_error('Error al aprobar el recurso');
+        }
+    }
+    
+    public function handle_resource_rejection() {
+        check_ajax_referer('update_resource', 'nonce');
+        
+        $resource_id = intval($_POST['resource_id']);
+        $author_email = sanitize_email($_POST['author_email']);
+        $rejection_reason = sanitize_textarea_field($_POST['rejection_reason']);
+        
+        // Actualizar el estado del recurso en la base de datos
+        $data = array(
+            'approved_by_catalogator' => 0,
+            'rejection_reason' => $rejection_reason
+        );
+        
+        $result = $this->db->update_resource($resource_id, $data);
+        
+        if ($result !== false) {
+            // Enviar correo electrónico al autor
+            $subject = 'Tu recurso educativo ha sido rechazado';
+            $message = sprintf(
+                'Estimado autor,
+    
+    Tu recurso educativo (ID: %d) ha sido revisado y no ha sido aprobado.
+    
+    Razón del rechazo:
+    %s
+    
+    Si tienes alguna pregunta, por favor contáctanos.
+    
+    Saludos cordiales,
+    El equipo de SIREC',
+                $resource_id,
+                $rejection_reason
+            );
+            
+            $headers = array('Content-Type: text/html; charset=UTF-8');
+            
+            $email_sent = wp_mail($author_email, $subject, $message, $headers);
+            
+            if ($email_sent) {
+                wp_send_json_success(array(
+                    'message' => 'Recurso rechazado y notificación enviada exitosamente',
+                    'email_sent' => true
+                ));
+            } else {
+                wp_send_json_success(array(
+                    'message' => 'Recurso rechazado pero hubo un problema al enviar la notificación',
+                    'email_sent' => false
+                ));
+            }
+        } else {
+            wp_send_json_error('Error al rechazar el recurso');
+        }
     }
     
     public function display_form() {

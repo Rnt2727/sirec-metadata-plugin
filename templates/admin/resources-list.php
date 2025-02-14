@@ -499,6 +499,29 @@ tr.editing td {
                            value="<?php echo esc_attr($resource->cab_seal); ?>" style="display: none;">
                 </td>
                 <td>
+                    <?php if (!isset($resource->approved_by_catalogator) || $resource->approved_by_catalogator === null): ?>
+                        <div class="approval-buttons">
+                            <button type="button" class="tutor-btn tutor-btn-success tutor-btn-sm approve-btn" 
+                                    data-resource-id="<?php echo esc_attr($resource->id); ?>"
+                                    data-author-email="<?php echo esc_attr($resource->author_email); ?>">
+                                Aprobar
+                            </button>
+                            <button type="button" class="tutor-btn tutor-btn-danger tutor-btn-sm reject-btn" 
+                                    data-resource-id="<?php echo esc_attr($resource->id); ?>"
+                                    data-author-email="<?php echo esc_attr($resource->author_email); ?>">
+                                Rechazar
+                            </button>
+                        </div>
+                    <?php else: ?>
+                        <span class="tutor-badge-outline-<?php echo $resource->approved_by_catalogator ? 'success' : 'danger'; ?>">
+                            <?php echo $resource->approved_by_catalogator ? 'Aprobado' : 'Rechazado'; ?>
+                        </span>
+                        <?php if (!$resource->approved_by_catalogator && isset($resource->rejection_reason)): ?>
+                            <i class="tutor-icon-info" title="<?php echo esc_attr($resource->rejection_reason); ?>"></i>
+                        <?php endif; ?>
+                    <?php endif; ?>
+                </td>
+                <td>
                     <div class="tutor-d-flex tutor-align-center tutor-gap-1">
                         <button type="button" class="tutor-btn tutor-btn-outline-primary tutor-btn-sm edit-btn">
                             <span class="tutor-icon-edit"></span>
@@ -579,6 +602,73 @@ jQuery(document).ready(function($) {
         // Remover clase de edición
         row.removeClass('editing');
     });
+
+    $('.approve-btn').on('click', function() {
+    var resourceId = $(this).data('resource-id');
+    var authorEmail = $(this).data('author-email');
+    
+    $.ajax({
+        url: ajax_object.ajax_url,
+        type: 'POST',
+        data: {
+            action: 'approve_resource',
+            nonce: ajax_object.nonce,
+            resource_id: resourceId,
+            author_email: authorEmail
+        },
+        success: function(response) {
+            if (response.success) {
+                // Actualizar la interfaz
+                var approvalButtons = $('[data-resource-id="' + resourceId + '"]').find('.approval-buttons');
+                approvalButtons.replaceWith(
+                    '<span class="tutor-badge-outline-success">Aprobado</span>'
+                );
+                alert('Recurso aprobado exitosamente');
+            } else {
+                alert('Error al aprobar el recurso');
+            }
+        },
+        error: function(xhr, status, error) {
+            alert('Error de conexión: ' + error);
+        }
+    });
+});
+
+$('.reject-btn').on('click', function() {
+    var resourceId = $(this).data('resource-id');
+    var authorEmail = $(this).data('author-email');
+    
+    var reason = prompt('Por favor, ingrese el motivo del rechazo:');
+    if (reason === null) return; // Usuario canceló
+    
+    $.ajax({
+        url: ajax_object.ajax_url,
+        type: 'POST', 
+        data: {
+            action: 'reject_resource',
+            nonce: ajax_object.nonce, 
+            resource_id: resourceId,
+            author_email: authorEmail,
+            rejection_reason: reason
+        },
+        success: function(response) {
+            if (response.success) {
+                // Actualizar la interfaz
+                var approvalButtons = $('[data-resource-id="' + resourceId + '"]').find('.approval-buttons');
+                approvalButtons.replaceWith(
+                    '<span class="tutor-badge-outline-danger">Rechazado</span>' +
+                    '<i class="tutor-icon-info" title="' + reason + '"></i>'
+                );
+                alert('Recurso rechazado exitosamente');
+            } else {
+                alert('Error al rechazar el recurso');
+            }
+        },
+        error: function(xhr, status, error) {
+            alert('Error de conexión: ' + error);
+        }
+    });
+});
 
     // Manejar el botón de guardar
     // Reemplaza el manejador del botón guardar con este código
