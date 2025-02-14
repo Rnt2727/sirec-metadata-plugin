@@ -610,9 +610,10 @@ tr.editing td {
                                     <?php else: ?>
                                         <!-- Mostrar botones de evaluación para evaluadores -->
                                         <button type="button" class="tutor-btn tutor-btn-primary tutor-btn-sm evaluate-btn"
-                                                data-resource-id="<?php echo esc_attr($resource->id); ?>">
-                                            Evaluar
-                                        </button>
+        data-resource-id="<?php echo esc_attr($resource->id); ?>"
+        data-category="<?php echo esc_attr($resource->category); ?>">
+    Evaluar
+</button>
                                     <?php endif; ?>
                                 </td>
                                 <td>
@@ -670,45 +671,57 @@ tr.editing td {
             <div class="tutor-modal-body">
                 <form id="evaluation-form">
                     <input type="hidden" id="resource-id-eval" name="resource_id">
+                    <input type="hidden" id="resource-category" name="resource_category">
                     <?php
-                    $evaluation_criteria = array(
-                        "Evidencia un propósito educativo e intencionalidad pedagógica",
-                        "El objetivo del RE es fácil de identificar y comprensible",
-                        "Respeta las leyes de derechos de autor",
-                        "El RE se puede contextualizar y reutilizar fácilmente",
-                        "Cumple con leyes de privacidad y protección de datos",
-                        "Presenta referencias según normas de citación",
-                        "Contenido actualizado con fuentes confiables",
-                        "Contenido coherente con fuentes citadas",
-                        "Promueve adaptación para usuarios con necesidades especiales",
-                        "Permite elegir forma de interacción según nivel",
-                        "Proporciona contenido abierto y accesible",
-                        "Es responsivo en diversas plataformas",
-                        "Promueve aprendizaje significativo",
-                        "Brinda herramientas para retomar conocimientos previos",
-                        "Plantea actividades que activan conocimientos previos",
-                        "Proporciona oportunidades de aplicación práctica",
-                        "Promueve actitudes positivas y reconocimiento",
-                        "Mantiene atención e interés del usuario",
-                        "Promueve gestión individual y compartida",
-                        "Fomenta creatividad e innovación",
-                        "Promueve pensamiento crítico y creativo",
-                        "Desarrolla habilidades para decisiones éticas",
-                        "Dispone de guías y tutoriales de uso",
-                        "Libre de publicidad y conflictos de interés"
+                    // Definir criterios por categoría
+                    $criteria_by_category = array(
+                        'RDC' => array(
+                            "Evidencia un propósito educativo e intencionalidad pedagógica",
+                            "El objetivo del RE es fácil de identificar y comprensible",
+                            "Respeta las leyes de derechos de autor",
+                            "El RE se puede contextualizar y reutilizar fácilmente",
+                            "Cumple con leyes de privacidad y protección de datos",
+                            "Presenta referencias según normas de citación",
+                            "Contenido actualizado con fuentes confiables",
+                            "Contenido coherente con fuentes citadas",
+                            "Promueve adaptación para usuarios con necesidades especiales",
+                            "Permite elegir forma de interacción según nivel",
+                            "Proporciona contenido abierto y accesible",
+                            "Es responsivo en diversas plataformas",
+                            "Promueve aprendizaje significativo",
+                            "Brinda herramientas para retomar conocimientos previos",
+                            "Plantea actividades que activan conocimientos previos",
+                            "Proporciona oportunidades de aplicación práctica",
+                            "Promueve actitudes positivas y reconocimiento",
+                            "Mantiene atención e interés del usuario",
+                            "Promueve gestión individual y compartida",
+                            "Fomenta creatividad e innovación",
+                            "Promueve pensamiento crítico y creativo",
+                            "Desarrolla habilidades para decisiones éticas",
+                            "Dispone de guías y tutoriales de uso",
+                            "Libre de publicidad y conflictos de interés"
+                        ),
+                        'OA' => array(
+                            "Evidencia un propósito educativo e intencionalidad pedagógica",
+                            "El objetivo del RE es fácil de identificar y comprensible",
+                            "Respeta las leyes de derechos de autor",
+                            "Promueve aprendizaje significativo",
+                            "Mantiene atención e interés del usuario",
+                            "Fomenta creatividad e innovación"
+                        ),
+                        'RAD' => array(
+                            "Evidencia un propósito educativo e intencionalidad pedagógica",
+                            "Respeta las leyes de derechos de autor",
+                            "Contenido actualizado con fuentes confiables",
+                            "Es responsivo en diversas plataformas",
+                            "Promueve aprendizaje significativo"
+                        )
                     );
+                    ?>
 
-                    foreach($evaluation_criteria as $index => $criterion): ?>
-                        <div class="evaluation-item">
-                            <p><strong><?php echo ($index + 1) . ". " . esc_html($criterion); ?></strong></p>
-                            <select name="criterion_<?php echo $index; ?>" required>
-                                <option value="">Seleccione un puntaje</option>
-                                <option value="0.25">0.25</option>
-                                <option value="0.50">0.50</option>
-                                <option value="1.00">1.00</option>
-                            </select>
-                        </div>
-                    <?php endforeach; ?>
+                    <div id="criteria-container">
+                        <!-- Los criterios se cargarán dinámicamente aquí -->
+                    </div>
                     
                     <div class="tutor-modal-footer">
                         <button type="submit" class="tutor-btn tutor-btn-primary">Guardar Evaluación</button>
@@ -719,7 +732,47 @@ tr.editing td {
     </div>
 </div>
 
-
+<script>
+// Función para cargar los criterios según la categoría
+function loadCriteria(category) {
+    const criteriaContainer = document.getElementById('criteria-container');
+    const criteriaByCategoryPHP = <?php echo json_encode($criteria_by_category); ?>;
+    
+    // Limpiar contenedor
+    criteriaContainer.innerHTML = '';
+    
+    // Obtener criterios para la categoría seleccionada
+    const criteria = criteriaByCategoryPHP[category] || [];
+    
+    if (criteria.length === 0) {
+        criteriaContainer.innerHTML = '<p>No hay criterios definidos para esta categoría.</p>';
+        return;
+    }
+    
+    // Generar HTML para cada criterio
+    criteria.forEach((criterion, index) => {
+        const criterionHtml = `
+            <div class="evaluation-item">
+                <p><strong>${index + 1}. ${criterion}</strong></p>
+                <select name="criterion_${index}" required>
+                    <option value="">Seleccione un puntaje</option>
+                    <option value="0.25">0.25</option>
+                    <option value="0.50">0.50</option>
+                    <option value="1.00">1.00</option>
+                </select>
+            </div>
+        `;
+        criteriaContainer.innerHTML += criterionHtml;
+    });
+}
+// Función para abrir el modal con la categoría correcta
+function openEvaluationModal(resourceId, category) {
+    document.getElementById('resource-id-eval').value = resourceId;
+    document.getElementById('resource-category').value = category;
+    document.getElementById('evaluation-modal').style.display = 'block';
+    loadCriteria(category);
+}
+</script>
 
 <script>
 jQuery(document).ready(function($) {
@@ -729,8 +782,10 @@ jQuery(document).ready(function($) {
 // Modal handling
 $('.evaluate-btn').on('click', function() {
     var resourceId = $(this).data('resource-id');
-    $('#resource-id-eval').val(resourceId);
-    $('#evaluation-modal').show();
+    var category = $(this).data('category');
+    
+    // Llamar a la función openEvaluationModal con ambos parámetros
+    openEvaluationModal(resourceId, category);
 });
 
 $('.tutor-modal-close').on('click', function() {
