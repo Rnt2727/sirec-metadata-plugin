@@ -7,32 +7,27 @@ class ERM_Evaluator {
     }
 
     public function calculate_evaluation_score($evaluation_data) {
+        if (!is_array($evaluation_data) || empty($evaluation_data)) {
+            return null;
+        }
+
         $total_score = 0;
         $question_count = 0;
-        
-        // Process each answer
-        foreach ($evaluation_data as $answer) {
-            // Skip NA answers
-            if ($answer !== 'NA') {
-                $score = 0;
-                switch ($answer) {
-                    case '0.25':
-                        $score = 0.25;
-                        break;
-                    case '0.5':
-                        $score = 0.5;
-                        break;
-                    case '1':
-                        $score = 1;
-                        break;
-                }
-                
+
+        foreach ($evaluation_data as $key => $value) {
+            if (is_numeric($value)) {
+                $score = floatval($value);
                 $total_score += $score;
                 $question_count++;
             }
         }
-        
-        return ($question_count > 0) ? round(($total_score * 100) / $question_count, 2) : null;
+
+        if ($question_count === 0) {
+            return null;
+        }
+
+        // Calcular el porcentaje y redondear a 2 decimales
+        return round(($total_score / $question_count) * 100, 2);
     }
     
     private function init_criteria() {

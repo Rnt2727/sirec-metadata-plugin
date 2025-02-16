@@ -841,13 +841,10 @@ $(window).on('click', function(event) {
 $('#evaluation-form').on('submit', function(e) {
     e.preventDefault();
     
-    var formData = $(this).serializeArray();
-    var total = 0;
-    
-    // Calculate total score
-    formData.forEach(function(item) {
-        if (item.name.startsWith('criterion_')) {
-            total += parseFloat(item.value);
+    var evaluationData = {};
+    $(this).find('select').each(function() {
+        if ($(this).val()) {
+            evaluationData[$(this).attr('name')] = $(this).val();
         }
     });
     
@@ -858,19 +855,19 @@ $('#evaluation-form').on('submit', function(e) {
             action: 'save_evaluation',
             nonce: ajax_object.nonce,
             resource_id: $('#resource-id-eval').val(),
-            score: total
+            evaluation_data: evaluationData
         },
         success: function(response) {
             if (response.success) {
-                alert('Evaluación guardada exitosamente');
+                alert(response.data.message);
                 $('#evaluation-modal').hide();
                 location.reload();
             } else {
-                alert('Error al guardar la evaluación');
+                alert(response.data || 'Error al guardar la evaluación');
             }
         },
-        error: function() {
-            alert('Error de conexión');
+        error: function(xhr, status, error) {
+            alert('Error de conexión: ' + error);
         }
     });
 });
