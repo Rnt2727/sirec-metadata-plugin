@@ -674,48 +674,31 @@ tr.editing td {
                     <input type="hidden" id="resource-category" name="resource_category">
                     <?php
                     // Definir criterios por categoría
-                    $criteria_by_category = array(
-                        'RC' => array( // Recursos de consulta
-        "Evidencia un propósito educativo e intencionalidad o finalidad pedagógica; tomando en cuenta el nivel y el área en el que se presentan.",
-        "El objetivo del RE es fácil de identificar, está formulado de manera clara y comprensible para el usuario.",
-        "Respeta las leyes de derechos de autor (uso de imágenes, videos, licencia abierta o de creative commons) y se cita o reconoce correctamente.",
-        "El RE se puede contextualizar, adecuar, adaptar, reutilizar, integrar y/o compartir fácilmente con otros materiales.",
-        "El RE cumple con las leyes de privacidad y protección de datos aplicables.",
-        "Presenta sus referencias (fuentes de información) de acuerdo con las normas de citación y referencias bibliográfica (Normas APA, Chicago...), y/o proviene de fuentes confiables.",
-        "El contenido del RE está actualizado con base en fuentes confiables que muestran avances en la disciplina que aborda.",
-        "El contenido del RE presenta afirmaciones, explicaciones, ideas, procedimientos, entre otros, en coherencia con las fuentes citadas.",
-        "El RE promueve la adaptación para usuarios con necesidades especiales.",
-        "El RE permite al usuario elegir la forma en que interactúa con la diversidad de contenidos según su nivel de aprendizaje",
-        "Proporciona contenido abierto y accesible para una comunidad amplia de usuarios.",
-        "El RE es responsivo y permite visualización en diversas plataformas y dispositivos.",
-        "El RE promueve el aprendizaje significativo del estudiante (relaciona conceptos nuevos con los que ya conoce)",
-        "Plantea herramientas que brindan a los usuarios la posibilidad de retomar sus conocimientos/saberes previos y experiencias para el desarrollo de sus aprendizajes",
-        "Plantea tareas/actividades o preguntas que activan los conocimientos/saberes previos relacionados con el/los propósito(s) de aprendizaje.",
-        "Proporciona, a los usuarios, oportunidades de conocimientos/procedimientos/ideas aprendidas en situaciones prácticas y reales.",
-        "El RE promueve actitudes positivas y/o de reconocimiento por los logros de los usuarios",
-        "El RE está orientado a mantener la atención y el interés del usuario.",
-        "Cuenta con herramientas que promueven la gestión individual y compartida de los aprendizajes en pro de la resolución de problemas",
-        "Fomenta la creatividad e innovación para que el estudiante genere nuevas ideas y formas de aplicación",
-        "Orienta una secuencia de tareas/actividades que promueven el pensamiento crítico y/o creativo.",
-        "Proporciona al usuario el desarrollo de habilidades para tomar decisiones informadas y éticas.",
-        "Dispone de guías de uso, videos tutoriales y demás materiales que ayuden a los usuarios en el manejo del recurso.",
-        "El RE está libre de publicidad y propaganda que evidencien conflicto de intereses."
-    ),
-                        'OA' => array(
-                            "Evidencia un propósito educativo e intencionalidad pedagógica",
-                            "El objetivo del RE es fácil de identificar y comprensible",
-                            "Respeta las leyes de derechos de autor",
-                            "Promueve aprendizaje significativo",
-                            "Mantiene atención e interés del usuario",
-                            "Fomenta creatividad e innovación"
-                        ),
-                        'RAD' => array(
-                            "Evidencia un propósito educativo e intencionalidad pedagógica",
-                            "Respeta las leyes de derechos de autor",
-                            "Contenido actualizado con fuentes confiables",
-                            "Es responsivo en diversas plataformas",
-                            "Promueve aprendizaje significativo"
-                        )
+                    $criteria_matrix = array(
+                        "Evidencia un propósito educativo e intencionalidad o finalidad pedagógica, tomando en cuenta el nivel y el área en el que se presentan." => ['NA','I','I','V','V'],
+                        "El objetivo del RE es fácil de identificar, está formulado de manera clara y comprensible para el usuario." => ['NA', 'I', 'I', 'V', 'NA'],
+                        "Respeta las leyes de derechos de autor (uso de imágenes, videos, licencia abierta o de creative commons) y se cita o reconoce correctamente." => ['I', 'I', 'I', 'I', 'I'],
+                        'El RE se puede contextualizar, adecuar, adaptar, reutilizar, integrar y/o compartir fácilmente con otros materiales.' => ['V', 'V', 'V', 'V', 'V'],
+                        'El RE cumple con las leyes de privacidad y protección de datos aplicables.' => ['I', 'I', 'I', 'I', 'I'],
+                        'Presenta sus referencias (fuentes de información) de acuerdo con las normas de citación y referencias bibliográficas (Normas APA, Chicago...), y/o proviene de fuentes confiables.' => ['I', 'I', 'I', 'V', 'V'],
+                        'El contenido del RE está actualizado con base en fuentes confiables que muestran avances en la disciplina que aborda.' => ['I', 'V', 'I', 'NA', 'I'],
+                        'El contenido del RE presenta afirmaciones, explicaciones, ideas, procedimientos, entre otros, en coherencia con las fuentes citadas.' => ['I', 'V', 'V', 'NA', 'NA'],
+                        'El RE promueve la adaptación para usuarios con necesidades especiales.' => ['NA', 'V', 'V', 'NA', 'NA'],
+                        'El RE permite al usuario elegir la forma en que interactúa con la diversidad de contenidos según su nivel de aprendizaje.' => ['V', 'NA', 'V', 'V', 'V'],
+                        'Proporciona contenido abierto y accesible para una comunidad amplia de usuarios.' => ['V', 'V', 'V', 'V', 'V'],
+                        'El RE es responsivo y permite visualización en diversas plataformas y dispositivos.' => ['I', 'I', 'I', 'I', 'I'],
+                        'El RE promueve el aprendizaje significativo del estudiante (relaciona conceptos nuevos con los que ya conoce).' => ['V', 'NA', 'V', 'V', 'V'],
+                        'Plantea herramientas que brindan a los usuarios la posibilidad de retomar sus conocimientos/saberes previos y experiencias para el desarrollo de sus aprendizajes.' => ['V', 'NA', 'V', 'V', 'V'],
+                        'Plantea tareas/actividades o preguntas que activan los conocimientos/saberes previos relacionados con el/los propósito(s) de aprendizaje.' => ['V', 'NA', 'V', 'V', 'V'],
+                        'Proporciona, a los usuarios, oportunidades de conocimientos/procedimientos/ideas aprendidas en situaciones prácticas y reales.' => ['V', 'V', 'V', 'V', 'V'],
+                        'El RE promueve actitudes positivas y/o de reconocimiento por los logros de los usuarios.' => ['NA', 'NA', 'V', 'V', 'V'],
+                        'El RE está orientado a mantener la atención y el interés del usuario.' => ['V', 'NA', 'V', 'I', 'V'],
+                        'Cuenta con herramientas que promueven la gestión individual y compartida de los aprendizajes en pro de la resolución de problemas.' => ['NA', 'NA', 'V', 'NA', 'V'],
+                        'Fomenta la creatividad e innovación para que el estudiante genere nuevas ideas y formas de aplicación.' => ['V', 'NA', 'V', 'V', 'V'],
+                        'Orienta una secuencia de tareas/actividades que promueven el pensamiento crítico y/o creativo.' => ['V', 'NA', 'V', 'NA', 'V'],
+                        'Proporciona al usuario el desarrollo de habilidades para tomar decisiones informadas y éticas.' => ['V', 'V', 'V', 'V', 'V'],
+                        'Dispone de guías de uso, videos tutoriales y demás materiales que ayuden a los usuarios en el manejo del recurso.' => ['V', 'NA', 'V', 'I', 'V'],
+                        'El RE está libre de publicidad y propaganda que evidencien conflicto de intereses.' => ['I', 'I', 'I', 'I', 'I']
                     );
                     ?>
 
@@ -736,35 +719,48 @@ tr.editing td {
 // Función para cargar los criterios según la categoría
 function loadCriteria(category) {
     const criteriaContainer = document.getElementById('criteria-container');
-    const criteriaByCategoryPHP = <?php echo json_encode($criteria_by_category); ?>;
+    const criteriaMatrixPHP = <?php echo json_encode($criteria_matrix); ?>;
+    
+    // Mapeo de categorías a índices
+    const categoryIndex = {
+        'RC': 0,
+        'RAD': 1,
+        'RDC': 2,
+        'RL': 3,
+        'RTE': 4
+    };
     
     // Limpiar contenedor
     criteriaContainer.innerHTML = '';
     
-    // Obtener criterios para la categoría seleccionada
-    const criteria = criteriaByCategoryPHP[category] || [];
-    
-    if (criteria.length === 0) {
-        criteriaContainer.innerHTML = '<p>No hay criterios definidos para esta categoría.</p>';
-        return;
+    let index = 1;
+    for (const [criterion, values] of Object.entries(criteriaMatrixPHP)) {
+        const type = values[categoryIndex[category]];
+        
+        // Solo mostrar si es I o V
+        if (type !== 'NA') {
+            const criterionHtml = `
+                <div class="evaluation-item">
+                    <p><strong>${index}. ${criterion}</strong></p>
+                    <p class="criterion-type">(${type === 'I' ? 'Indispensable' : 'Valorado'})</p>
+                    <select name="criterion_${index - 1}" required>
+                        <option value="">Seleccione un puntaje</option>
+                        <option value="0.25">0.25</option>
+                        <option value="0.50">0.50</option>
+                        <option value="1.00">1.00</option>
+                    </select>
+                </div>
+            `;
+            criteriaContainer.innerHTML += criterionHtml;
+            index++;
+        }
     }
     
-    // Generar HTML para cada criterio
-    criteria.forEach((criterion, index) => {
-        const criterionHtml = `
-            <div class="evaluation-item">
-                <p><strong>${index + 1}. ${criterion}</strong></p>
-                <select name="criterion_${index}" required>
-                    <option value="">Seleccione un puntaje</option>
-                    <option value="0.25">0.25</option>
-                    <option value="0.50">0.50</option>
-                    <option value="1.00">1.00</option>
-                </select>
-            </div>
-        `;
-        criteriaContainer.innerHTML += criterionHtml;
-    });
+    if (criteriaContainer.innerHTML === '') {
+        criteriaContainer.innerHTML = '<p>No hay criterios definidos para esta categoría.</p>';
+    }
 }
+
 // Función para abrir el modal con la categoría correcta
 function openEvaluationModal(resourceId, category) {
     document.getElementById('resource-id-eval').value = resourceId;
