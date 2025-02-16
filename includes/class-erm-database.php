@@ -10,11 +10,21 @@ class ERM_Database {
     }
     
     public function update_resource($id, $data) {
+        $formats = array();
+        
+        foreach ($data as $key => $value) {
+            if ($key === 'evaluation_score') {
+                $formats[] = '%f';
+            } else {
+                $formats[] = '%s';
+            }
+        }
+        
         return $this->wpdb->update(
             $this->table_name,
             $data,
             array('id' => $id),
-            null,
+            $formats,
             array('%d')
         );
     }

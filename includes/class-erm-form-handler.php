@@ -25,20 +25,32 @@ class ERM_Form_Handler {
     public function handle_evaluation_submission() {
         check_ajax_referer('update_resource', 'nonce');
         
-        if (!isset($_POST['resource_id']) || !isset($_POST['score'])) {
+        if (!isset($_POST['resource_id']) || !isset($_POST['evaluation_data'])) {
             wp_send_json_error('Datos incompletos');
             return;
         }
         
         $resource_id = intval($_POST['resource_id']);
-        $score = floatval($_POST['score']);
+        $evaluation_data = $_POST['evaluation_data'];
         
-        $result = $this->db->update_evaluation_score($resource_id, $score);
+        $evaluator = new ERM_Evaluator();
+        $score = $evaluator->calculate_evaluation_score($evaluation_data);
         
-        if ($result !== false) {
-            wp_send_json_success(array('message' => 'Evaluación guardada exitosamente'));
+        if ($score !== null) {
+            $data = array('evaluation_score' => $score);
+            
+            $update_result = $this->db->update_resource($resource_id, $data);
+            
+            if ($update_result !== false) {
+                wp_send_json_success(array(
+                    'message' => 'Evaluación guardada exitosamente',
+                    'score' => $score
+                ));
+            } else {
+                wp_send_json_error('Error al guardar la evaluación');
+            }
         } else {
-            wp_send_json_error('Error al guardar la evaluación');
+            wp_send_json_error('No hay preguntas válidas para calcular el puntaje');
         }
     }
 

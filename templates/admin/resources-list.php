@@ -410,7 +410,14 @@ tr.editing td {
                         <th width="8%"><?php esc_html_e('Licencia', 'tutor'); ?></th>
                         <th width="8%"><?php esc_html_e('Calificación CAB', 'tutor'); ?></th>
                         <th width="8%"><?php esc_html_e('Sello CAB', 'tutor'); ?></th>
+
+                        <th width="8%"><?php esc_html_e('Estado', 'tutor'); ?></th>
+                        <th width="15%"><?php esc_html_e('Razón de Rechazo', 'tutor'); ?></th>
+                        <th width="8%"><?php esc_html_e('Puntuación', 'tutor'); ?></th>
+                        <th width="10%"><?php esc_html_e('Fecha de Envío', 'tutor'); ?></th>
+
                         <th width="10%"><?php esc_html_e('Acciones', 'tutor'); ?></th>
+
                     </tr>
                 </thead>
 
@@ -586,6 +593,39 @@ tr.editing td {
                                     <input type="text" class="editable-field tutor-fs-7" name="cab_seal" 
                                         value="<?php echo esc_attr($resource->cab_seal); ?>" style="display: none;">
                                 </td>
+                                <!-- Estado -->
+                                <td>
+                                    <?php if (isset($resource->approved_by_catalogator)): ?>
+                                        <span class="tutor-badge-outline-<?php echo $resource->approved_by_catalogator ? 'success' : 'danger'; ?>">
+                                            <?php echo $resource->approved_by_catalogator ? 'Aprobado' : 'Rechazado'; ?>
+                                        </span>
+                                    <?php else: ?>
+                                        <span class="tutor-badge-outline-warning">Pendiente</span>
+                                    <?php endif; ?>
+                                </td>
+
+                                <!-- Razón de Rechazo -->
+                                <td>
+                                    <span class="display-value tutor-fs-7">
+                                        <?php echo esc_html($resource->rejection_reason); ?>
+                                    </span>
+                                    <input type="text" class="editable-field tutor-fs-7" name="rejection_reason" 
+                                        value="<?php echo esc_attr($resource->rejection_reason); ?>" style="display: none;">
+                                </td>
+
+                                <!-- Puntuación -->
+                                <td>
+                                    <span class="display-value tutor-fs-7">
+                                        <?php echo $resource->evaluation_score ? number_format($resource->evaluation_score, 2) : '-'; ?>
+                                    </span>
+                                </td>
+
+                                <!-- Fecha de Envío -->
+                                <td>
+                                    <span class="display-value tutor-fs-7">
+                                        <?php echo esc_html($resource->submission_date); ?>
+                                    </span>
+                                </td>
                                 <td>
                                     <?php if ($is_catalogator): ?>
                                         <!-- Mostrar botones de aprobar/rechazar solo para catalogadores -->
@@ -608,16 +648,19 @@ tr.editing td {
                                             </span>
                                         <?php endif; ?>
                                     <?php else: ?>
-                                        <!-- Mostrar botones de evaluación para evaluadores -->
-                                        <button type="button" class="tutor-btn tutor-btn-primary tutor-btn-sm evaluate-btn"
-        data-resource-id="<?php echo esc_attr($resource->id); ?>"
-        data-category="<?php echo esc_attr($resource->category); ?>">
-    Evaluar
-</button>
+                                        
                                     <?php endif; ?>
                                 </td>
                                 <td>
                                     <div class="tutor-d-flex tutor-align-center tutor-gap-1">
+
+                                        <?php if (!$is_catalogator): ?>
+                                            <button type="button" class="tutor-btn tutor-btn-primary tutor-btn-sm evaluate-btn"
+                                                data-resource-id="<?php echo esc_attr($resource->id); ?>"
+                                                data-category="<?php echo esc_attr($resource->category); ?>">
+                                                Evaluar
+                                            </button>
+                                        <?php endif; ?>
                                         <button type="button" class="tutor-btn tutor-btn-outline-primary tutor-btn-sm edit-btn">
                                             <span class="tutor-icon-edit"></span>
                                             <span>Editar</span>
@@ -703,7 +746,6 @@ tr.editing td {
                     ?>
 
                     <div id="criteria-container">
-                        <!-- Los criterios se cargarán dinámicamente aquí -->
                     </div>
                     
                     <div class="tutor-modal-footer">
