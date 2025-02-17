@@ -298,44 +298,47 @@
 <script>
 jQuery(document).ready(function($) {
 
+    /**inicio: multichebox preg 20 */
     $('.dropdown-header').on('click', function() {
-    const dropdown = document.getElementById('skillsDropdown');
-    const header = document.querySelector('.dropdown-header');
-    dropdown.classList.toggle('show');
-    header.classList.toggle('active');
-});
-
-    function toggleSkillsDropdown() {
-    const dropdown = document.getElementById('skillsDropdown');
-    const header = document.querySelector('.dropdown-header');
-    dropdown.classList.toggle('show');
-    header.classList.toggle('active');
-}
-
-// Cerrar el dropdown si se hace clic fuera de él
-document.addEventListener('click', function(event) {
-    const dropdown = document.getElementById('skillsDropdown');
-    const header = document.querySelector('.dropdown-header');
-    if (!event.target.closest('.dropdown-checkbox')) {
-        dropdown.classList.remove('show');
-        header.classList.remove('active');
-    }
-});
-
-// Actualizar el texto del header cuando se seleccionan opciones
-document.querySelectorAll('input[name="skills_competencies[]"]').forEach(checkbox => {
-    checkbox.addEventListener('change', function() {
-        const selectedCount = document.querySelectorAll('input[name="skills_competencies[]"]:checked').length;
-        const headerText = document.querySelector('.dropdown-header');
-        if (selectedCount > 0) {
-            headerText.textContent = `${selectedCount} competencias seleccionadas`;
-        } else {
-            headerText.textContent = 'Seleccionar habilidades y competencias';
-        }
-        headerText.appendChild(document.createElement('span')).textContent = ' ▼';
-        headerText.lastElementChild.className = 'dropdown-arrow';
+        const dropdown = document.getElementById('skillsDropdown');
+        const header = document.querySelector('.dropdown-header');
+        dropdown.classList.toggle('show');
+        header.classList.toggle('active');
     });
-});
+
+        function toggleSkillsDropdown() {
+        const dropdown = document.getElementById('skillsDropdown');
+        const header = document.querySelector('.dropdown-header');
+        dropdown.classList.toggle('show');
+        header.classList.toggle('active');
+    }
+
+    document.addEventListener('click', function(event) {
+        const dropdown = document.getElementById('skillsDropdown');
+        const header = document.querySelector('.dropdown-header');
+        if (!event.target.closest('.dropdown-checkbox')) {
+            dropdown.classList.remove('show');
+            header.classList.remove('active');
+        }
+    });
+
+    document.querySelectorAll('input[name="skills_competencies[]"]').forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            const selectedCount = document.querySelectorAll('input[name="skills_competencies[]"]:checked').length;
+            const headerText = document.querySelector('.dropdown-header');
+            if (selectedCount > 0) {
+                headerText.textContent = `${selectedCount} competencias seleccionadas`;
+            } else {
+                headerText.textContent = 'Seleccionar habilidades y competencias';
+            }
+            headerText.appendChild(document.createElement('span')).textContent = ' ▼';
+            headerText.lastElementChild.className = 'dropdown-arrow';
+        });
+    });
+
+    /**fin: multichebox preg 20 */
+
+
     /*Tooltip inicio*/
     const fieldDescriptions = {
         'title': 'Nombre completo del recurso educativo',

@@ -305,11 +305,9 @@ class ERM_Form_Handler {
             'submission_date' => current_time('mysql')
         );
     
-        // Insertar el recurso en la base de datos
         $insert_result = $this->db->insert_resource($data);
     
         if ($insert_result) {
-            // Preparar y enviar el correo de confirmación
             $subject = 'Confirmación de envío de Recurso Educativo - SIREC';
             $message = '<!DOCTYPE html>
             <html>
