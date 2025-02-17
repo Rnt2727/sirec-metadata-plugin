@@ -193,7 +193,6 @@ class ERM_Form_Handler {
     public function display_form() {
         ob_start();
         
-        // Incluir el modal
         include ERM_PLUGIN_DIR . 'templates/forms/confirmation-modal.php';
         include ERM_PLUGIN_DIR . 'templates/forms/submission-form.php';
         
@@ -202,7 +201,6 @@ class ERM_Form_Handler {
 
     public function handle_resource_update() {
 
-        // Verificar el nonce
 
         if (!check_ajax_referer('update_resource', 'nonce', false)) {
 
@@ -214,7 +212,6 @@ class ERM_Form_Handler {
 
     
 
-        // Verificar que tenemos los datos necesarios
 
         if (!isset($_POST['resource_id']) || !isset($_POST['resource_data'])) {
 
@@ -232,7 +229,6 @@ class ERM_Form_Handler {
 
     
 
-        // Sanitizar los datos
 
         $sanitized_data = array();
 
@@ -251,8 +247,6 @@ class ERM_Form_Handler {
         }
 
     
-
-        // Actualizar el recurso
 
         $result = $this->db->update_resource($resource_id, $sanitized_data);
 
@@ -281,10 +275,40 @@ class ERM_Form_Handler {
         
         $response = array('success' => false, 'message' => '');
         
-        // Validar campos requeridos
         if (empty($_POST['title']) || empty($_POST['author']) || empty($_POST['author_email'])) {
             $response['message'] = 'Por favor complete todos los campos requeridos.';
             wp_send_json($response);
+            return;
+        }
+
+        if (!isset($_FILES['resource_file'])) {
+            wp_send_json_error('No se ha proporcionado ningún archivo');
+            return;
+        }
+
+        $file = $_FILES['resource_file'];
+        $allowed_types = array(
+            'html' => 'text/html',
+            'pdf' => 'application/pdf',
+            'mp4' => 'video/mp4',
+            'mp3' => 'audio/mpeg',
+            'ppt' => 'application/vnd.ms-powerpoint',
+            'pptx' => 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+            'doc' => 'application/msword',
+            'docx' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            'jpg' => 'image/jpeg',
+            'png' => 'image/png',
+            'exe' => 'application/x-msdownload',
+            'apk' => 'application/vnd.android.package-archive'
+        );
+
+        $upload = wp_handle_upload($file, array(
+            'test_form' => false,
+            'mimes' => $allowed_types
+        ));
+
+        if (isset($upload['error'])) {
+            wp_send_json_error('Error al subir el archivo: ' . $upload['error']);
             return;
         }
         
@@ -312,17 +336,23 @@ class ERM_Form_Handler {
             'cab_rating' => sanitize_text_field($_POST['cab_rating']),
             'cab_seal' => sanitize_text_field($_POST['cab_seal']),
             'age' => sanitize_text_field($_POST['age']),
+            'file_url' => $upload['url'],
+            'file_path' => $upload['file'],
+            'file_type' => pathinfo($file['name'], PATHINFO_EXTENSION)
         );
+
         
         $result = $this->db->insert_resource($data);
         
         if ($result) {
-            $response['success'] = true;
-            $response['message'] = '¡Recurso enviado exitosamente!';
+            wp_send_json_success(array(
+                'message' => '¡Recurso enviado exitosamente!',
+                'file_url' => $upload['url']
+            ));
         } else {
-            $response['message'] = 'Hubo un error al guardar el recurso.';
+            @unlink($upload['file']); 
+            wp_send_json_error('Error al guardar el recurso en la base de datos.');
         }
         
-        wp_send_json($response);
     }
 }

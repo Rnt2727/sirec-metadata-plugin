@@ -406,6 +406,8 @@ tr.editing td {
                         <th width="8%"><?php esc_html_e('Edad', 'tutor'); ?></th>
                         <th width="10%"><?php esc_html_e('Nivel en Otros Países', 'tutor'); ?></th>
                         <th width="8%"><?php esc_html_e('Tipo de Archivo', 'tutor'); ?></th>
+                        <th width="10%"><?php esc_html_e('Archivo', 'tutor'); ?></th>
+<th width="10%"><?php esc_html_e('Licencia', 'tutor'); ?></th>
                         <th width="8%"><?php esc_html_e('Formato Visual', 'tutor'); ?></th>
                         <th width="10%"><?php esc_html_e('Usuario Destinatario', 'tutor'); ?></th>
                         <th width="15%"><?php esc_html_e('Habilidades y Competencias', 'tutor'); ?></th>
@@ -552,6 +554,36 @@ tr.editing td {
                                     </span>
                                     <input type="text" class="editable-field tutor-fs-7" name="file_type" 
                                         value="<?php echo esc_attr($resource->file_type); ?>" style="display: none;">
+                                </td>
+                                <td>
+                                    <?php if (!empty($resource->file_url)): ?>
+                                        <a href="<?php echo esc_url($resource->file_url); ?>" 
+                                        target="_blank" 
+                                        class="tutor-btn tutor-btn-outline-primary tutor-btn-sm">
+                                            <span class="dashicons dashicons-download"></span>
+                                            Descargar <?php echo esc_html(strtoupper($resource->file_type)); ?>
+                                        </a>
+                                    <?php else: ?>
+                                        <span class="tutor-badge-outline-warning">Sin archivo</span>
+                                    <?php endif; ?>
+                                </td>
+
+                                <td>
+                                    <span class="display-value tutor-fs-7">
+                                        <?php echo esc_html($resource->license); ?>
+                                    </span>
+                                    <select class="editable-field tutor-fs-7" name="license" style="display: none;">
+                                        <option value="CC BY" <?php selected($resource->license, 'CC BY'); ?>>CC BY - Atribución</option>
+                                        <option value="CC BY-SA" <?php selected($resource->license, 'CC BY-SA'); ?>>CC BY-SA - Atribución-CompartirIgual</option>
+                                        <option value="CC BY-ND" <?php selected($resource->license, 'CC BY-ND'); ?>>CC BY-ND - Atribución-SinDerivadas</option>
+                                        <option value="CC BY-NC" <?php selected($resource->license, 'CC BY-NC'); ?>>CC BY-NC - Atribución-NoComercial</option>
+                                        <option value="CC BY-NC-SA" <?php selected($resource->license, 'CC BY-NC-SA'); ?>>CC BY-NC-SA - Atribución-NoComercial-CompartirIgual</option>
+                                        <option value="CC BY-NC-ND" <?php selected($resource->license, 'CC BY-NC-ND'); ?>>CC BY-NC-ND - Atribución-NoComercial-SinDerivadas</option>
+                                        <option value="GPL" <?php selected($resource->license, 'GPL'); ?>>GPL</option>
+                                        <option value="MIT" <?php selected($resource->license, 'MIT'); ?>>MIT</option>
+                                        <option value="Apache" <?php selected($resource->license, 'Apache'); ?>>Apache</option>
+                                        <option value="Public Domain" <?php selected($resource->license, 'Public Domain'); ?>>Dominio Público</option>
+                                    </select>
                                 </td>
                                 <td>
                                     <span class="display-value tutor-fs-7">

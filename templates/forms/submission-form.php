@@ -127,6 +127,32 @@
                 <input type="text" id="file_type" name="file_type" required>
             </div>
             <div class="form-group">
+                <label for="resource_file">Archivo del recurso:</label>
+                <input type="file" 
+                    id="resource_file" 
+                    name="resource_file" 
+                    accept=".html,.pdf,.mp4,.mp3,.ppt,.pptx,.doc,.docx,.jpg,.png,.exe,.apk" 
+                    required>
+                <span class="file-description">Formatos permitidos: HTML, PDF, MP4, MP3, PPT, PPTX, DOC, DOCX, JPG, PNG, EXE, APK</span>
+            </div>
+
+            <div class="form-group">
+                <label for="license">Licencia:</label>
+                <select id="license" name="license" required>
+                    <option value="">Seleccionar licencia</option>
+                    <option value="CC BY">CC BY - Atribución</option>
+                    <option value="CC BY-SA">CC BY-SA - Atribución-CompartirIgual</option>
+                    <option value="CC BY-ND">CC BY-ND - Atribución-SinDerivadas</option>
+                    <option value="CC BY-NC">CC BY-NC - Atribución-NoComercial</option>
+                    <option value="CC BY-NC-SA">CC BY-NC-SA - Atribución-NoComercial-CompartirIgual</option>
+                    <option value="CC BY-NC-ND">CC BY-NC-ND - Atribución-NoComercial-SinDerivadas</option>
+                    <option value="GPL">GPL - Licencia Pública General de GNU</option>
+                    <option value="MIT">MIT License</option>
+                    <option value="Apache">Apache License 2.0</option>
+                    <option value="Public Domain">Dominio Público</option>
+                </select>
+            </div>
+            <div class="form-group">
                 <label for="visual_format">16. Formato Visual
                 <span class="info-icon">?
                         <span class="tooltip"></span>
