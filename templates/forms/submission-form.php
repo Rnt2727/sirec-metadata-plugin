@@ -461,7 +461,7 @@ jQuery(document).ready(function($) {
 
     $('#educational-resource-form').on('submit', function(e) {
         e.preventDefault();
-    
+
         if (isSubmitting) {
             return false;
         }
@@ -495,9 +495,19 @@ jQuery(document).ready(function($) {
         $spinner.show();
         $buttonText.text('Enviando...');
         
+        // Crear FormData con el formulario
         var formData = new FormData(this);
+        
+        // Agregar el archivo explícitamente
+        const fileInput = document.getElementById('resource_file');
+        if (fileInput && fileInput.files.length > 0) {
+            formData.append('resource_file', fileInput.files[0]);
+        }
+        
+        // Agregar campos adicionales
         formData.append('action', 'submit_resource');
         formData.append('nonce', $('#resource_form_nonce').val());
+        formData.append('skills_competencies', selectedSkills.join(','));
         
         $.ajax({
             url: ajaxurl,
@@ -515,11 +525,11 @@ jQuery(document).ready(function($) {
                     updateTags();
                     updateLanguageTags();
                 } else {
-                    alert(response.message);
+                    alert(response.message || 'Error al enviar el recurso');
                 }
             },
-            error: function() {
-                alert('Hubo un error al procesar su solicitud.');
+            error: function(xhr, status, error) {
+                alert('Hubo un error al procesar su solicitud: ' + error);
             },
             complete: function() {
                 // Restaurar el estado del botón

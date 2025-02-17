@@ -278,6 +278,31 @@ class ERM_Form_Handler {
             return;
         }
 
+        $file_url = '';
+        $file_path = '';
+        if (!empty($_FILES['resource_file'])) {
+            $uploaded_file = $_FILES['resource_file'];
+            
+            // Verificar si hubo errores en la subida
+            if ($uploaded_file['error'] === 0) {
+                $upload_dir = wp_upload_dir();
+                $file_name = sanitize_file_name($uploaded_file['name']);
+                $file_path = $upload_dir['path'] . '/' . $file_name;
+                $file_url = $upload_dir['url'] . '/' . $file_name;
+                
+                // Mover el archivo a la carpeta de uploads
+                if (move_uploaded_file($uploaded_file['tmp_name'], $file_path)) {
+                    // Archivo subido exitosamente
+                } else {
+                    wp_send_json_error('Error al mover el archivo subido');
+                    return;
+                }
+            } else {
+                wp_send_json_error('Error en la subida del archivo');
+                return;
+            }
+        }
+
         $skills_competencies = isset($_POST['skills_competencies']) ? 
         sanitize_text_field($_POST['skills_competencies']) : '';
     
@@ -297,6 +322,8 @@ class ERM_Form_Handler {
             'school_sequence' => sanitize_text_field($_POST['school_sequence']),
             'age' => sanitize_text_field($_POST['age']),
             'level_other_countries' => sanitize_text_field($_POST['level_other_countries']),
+            'file_url' => $file_url,
+            'file_path' => $file_path,
             'file_type' => sanitize_text_field($_POST['file_type']),
             'visual_format' => sanitize_text_field($_POST['visual_format']),
             'target_user' => sanitize_text_field($_POST['target_user']),

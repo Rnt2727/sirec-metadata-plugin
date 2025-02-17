@@ -670,61 +670,49 @@ tr.editing td {
                                     </span>
                                 </td>
                                 <td>
-                                    <?php if ($is_catalogator): ?>
-                                        <!-- Mostrar botones de aprobar/rechazar solo para catalogadores -->
-                                        <?php if (!isset($resource->approved_by_catalogator) || $resource->approved_by_catalogator === null): ?>
-                                            <div class="approval-buttons">
-                                                <button type="button" class="tutor-btn tutor-btn-success tutor-btn-sm approve-btn" 
-                                                        data-resource-id="<?php echo esc_attr($resource->id); ?>"
-                                                        data-author-email="<?php echo esc_attr($resource->author_email); ?>">
-                                                    Aprobar
-                                                </button>
-                                                <button type="button" class="tutor-btn tutor-btn-danger tutor-btn-sm reject-btn" 
-                                                        data-resource-id="<?php echo esc_attr($resource->id); ?>"
-                                                        data-author-email="<?php echo esc_attr($resource->author_email); ?>">
-                                                    Rechazar
-                                                </button>
-                                            </div>
-                                        <?php endif; ?>
-                                    <?php elseif ($is_evaluator): ?>
-                                            <button type="button" class="tutor-btn tutor-btn-primary tutor-btn-sm evaluate-btn"
-                                                data-resource-id="<?php echo esc_attr($resource->id); ?>"
-                                                data-category="<?php echo esc_attr($resource->category); ?>">
-                                                Evaluar
-                                            </button>
-                                        <?php endif; ?>
-                                        
-                                        <?php if (!$is_administrator): ?>
-                                            <button type="button" class="tutor-btn tutor-btn-outline-primary tutor-btn-sm edit-btn">
-                                                <span class="tutor-icon-edit"></span>
-                                                <span>Editar</span>
-                                            </button>
-                                        <?php endif; ?>
-                                    </td>
-                                <td>
-                                    <div class="tutor-d-flex tutor-align-center tutor-gap-1">
-
-                                        <?php if (!$is_catalogator): ?>
-                                            <button type="button" class="tutor-btn tutor-btn-primary tutor-btn-sm evaluate-btn"
-                                                data-resource-id="<?php echo esc_attr($resource->id); ?>"
-                                                data-category="<?php echo esc_attr($resource->category); ?>">
-                                                Evaluar
-                                            </button>
-                                        <?php endif; ?>
-                                        <button type="button" class="tutor-btn tutor-btn-outline-primary tutor-btn-sm edit-btn">
-                                            <span class="tutor-icon-edit"></span>
-                                            <span>Editar</span>
-                                        </button>
-                                        <div class="edit-actions" style="display: none;">
-                                            <button type="button" class="tutor-btn tutor-btn-primary tutor-btn-sm save-btn">
-                                                <span>Guardar</span>
-                                            </button>
-                                            <button type="button" class="tutor-btn tutor-btn-outline-primary tutor-btn-sm cancel-btn">
-                                                <span>Cancelar</span>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </td>
+    <div class="tutor-d-flex tutor-align-center tutor-gap-1">
+        <?php if ($is_catalogator): ?>
+            <!-- Mostrar botones de aprobar/rechazar solo para catalogadores -->
+            <?php if (!isset($resource->approved_by_catalogator) || $resource->approved_by_catalogator === null): ?>
+                <div class="approval-buttons">
+                    <button type="button" class="tutor-btn tutor-btn-success tutor-btn-sm approve-btn" 
+                            data-resource-id="<?php echo esc_attr($resource->id); ?>"
+                            data-author-email="<?php echo esc_attr($resource->author_email); ?>">
+                        Aprobar
+                    </button>
+                    <button type="button" class="tutor-btn tutor-btn-danger tutor-btn-sm reject-btn" 
+                            data-resource-id="<?php echo esc_attr($resource->id); ?>"
+                            data-author-email="<?php echo esc_attr($resource->author_email); ?>">
+                        Rechazar
+                    </button>
+                </div>
+            <?php endif; ?>
+            
+            <!-- Botones de edición solo para catalogadores -->
+            <div class="edit-actions-container">
+                <button type="button" class="tutor-btn tutor-btn-outline-primary tutor-btn-sm edit-btn">
+                    <span class="tutor-icon-edit"></span>
+                    <span>Editar</span>
+                </button>
+                <div class="edit-actions" style="display: none;">
+                    <button type="button" class="tutor-btn tutor-btn-primary tutor-btn-sm save-btn">
+                        <span>Guardar</span>
+                    </button>
+                    <button type="button" class="tutor-btn tutor-btn-outline-primary tutor-btn-sm cancel-btn">
+                        <span>Cancelar</span>
+                    </button>
+                </div>
+            </div>
+        <?php elseif ($is_evaluator): ?>
+            <button type="button" class="tutor-btn tutor-btn-primary tutor-btn-sm evaluate-btn"
+                    data-resource-id="<?php echo esc_attr($resource->id); ?>"
+                    data-category="<?php echo esc_attr($resource->category); ?>">
+                Evaluar
+            </button>
+        <?php endif; ?>
+    </div>
+</td>
+                                
                             </tr>
                         <?php endforeach; ?>
                         <?php else: ?>
