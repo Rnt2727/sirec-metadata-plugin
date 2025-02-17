@@ -476,6 +476,92 @@ button[type="submit"]:hover {
     transform: rotate(180deg);
 }
 
+/*modal evlauador*/ 
+.evaluation-section {
+    background: #fff;
+    border-radius: 6px;
+    padding: 20px;
+    margin-bottom: 20px;
+    border: 1px solid var(--tutor-border-color);
+}
+
+.evaluation-options {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.evaluation-checkbox {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    padding: 10px;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
+}
+
+.evaluation-checkbox:hover {
+    background-color: rgba(1, 166, 213, 0.05);
+}
+
+.evaluation-checkbox input[type="radio"] {
+    display: none;
+}
+
+.checkmark {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #ddd;
+    border-radius: 50%;
+    margin-right: 12px;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.evaluation-checkbox input[type="radio"]:checked + .checkmark {
+    border-color: #01a6d5;
+    background-color: #01a6d5;
+}
+
+.evaluation-checkbox input[type="radio"]:checked + .checkmark:after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 8px;
+    height: 8px;
+    background-color: white;
+    border-radius: 50%;
+}
+
+.label-text {
+    font-family: 'Nunito Sans', sans-serif;
+    font-size: 14px;
+    color: #333;
+}
+
+.evaluation-checkbox input[type="radio"]:checked ~ .label-text {
+    color: #01a6d5;
+    font-weight: 600;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .tutor-modal-window {
+        width: 95%;
+        margin: 10px;
+    }
+
+    .evaluation-section {
+        padding: 15px;
+    }
+
+    .label-text {
+        font-size: 13px;
+    }
+}
+
 @media screen and (min-width: 768px) {
     .tooltip {
         left: 28px; 

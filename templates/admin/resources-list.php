@@ -730,13 +730,18 @@ tr.editing td {
     <div class="tutor-modal-window">
         <div class="tutor-modal-content">
             <div class="tutor-modal-header">
-                <h3>Evaluación del Recurso</h3>
-                <button class="tutor-modal-close">&times;</button>
+                <h3 class="tutor-fs-5 tutor-fw-medium tutor-color-black">
+                    Evaluación del Recurso Educativo
+                </h3>
+                <button class="tutor-modal-close">×</button>
             </div>
+
             <div class="tutor-modal-body">
                 <form id="evaluation-form">
+                    <?php wp_nonce_field('submit_evaluation', 'evaluation_nonce'); ?>
                     <input type="hidden" id="resource-id-eval" name="resource_id">
                     <input type="hidden" id="resource-category" name="resource_category">
+
                     <?php
                     // Definir criterios por categoría
                     $criteria_matrix = array(
@@ -767,11 +772,37 @@ tr.editing td {
                     );
                     ?>
 
-                    <div id="criteria-container">
+<div id="criteria-container" class="evaluation-sections">
+                        <?php foreach ($criteria_matrix as $criterion => $values): ?>
+                            <div class="evaluation-section tutor-mb-32">
+                                <h4 class="tutor-fs-6 tutor-fw-medium tutor-color-black tutor-mb-16">
+                                    <?php echo esc_html($criterion); ?>
+                                </h4>
+                                <div class="evaluation-options">
+                                    <label class="evaluation-checkbox">
+                                        <input type="radio" name="criterion_<?php echo sanitize_key($criterion); ?>" value="0.25">
+                                        <span class="checkmark"></span>
+                                        <span class="label-text">Básico (0.25)</span>
+                                    </label>
+                                    <label class="evaluation-checkbox">
+                                        <input type="radio" name="criterion_<?php echo sanitize_key($criterion); ?>" value="0.5">
+                                        <span class="checkmark"></span>
+                                        <span class="label-text">Intermedio (0.5)</span>
+                                    </label>
+                                    <label class="evaluation-checkbox">
+                                        <input type="radio" name="criterion_<?php echo sanitize_key($criterion); ?>" value="1">
+                                        <span class="checkmark"></span>
+                                        <span class="label-text">Avanzado (1.0)</span>
+                                    </label>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
                     </div>
-                    
-                    <div class="tutor-modal-footer">
-                        <button type="submit" class="tutor-btn tutor-btn-primary">Guardar Evaluación</button>
+
+                    <div class="tutor-d-flex tutor-justify-end tutor-mt-32">
+                        <button type="submit" class="tutor-btn tutor-btn-primary">
+                            Enviar Evaluación
+                        </button>
                     </div>
                 </form>
             </div>
@@ -841,16 +872,17 @@ jQuery(document).ready(function($) {
 
 // Modal handling
 $('.evaluate-btn').on('click', function() {
-    var resourceId = $(this).data('resource-id');
-    var category = $(this).data('category');
-    
-    // Llamar a la función openEvaluationModal con ambos parámetros
-    openEvaluationModal(resourceId, category);
-});
+        const resourceId = $(this).data('resource-id');
+        const category = $(this).data('category');
+        $('#resource-id-eval').val(resourceId);
+        $('#resource-category').val(category);
+        $('#evaluation-modal').show();
+    });
 
-$('.tutor-modal-close').on('click', function() {
-    $('#evaluation-modal').hide();
-});
+
+    $('.tutor-modal-close, .tutor-modal-overlay').on('click', function() {
+        $('#evaluation-modal').hide();
+    });
 
 // Close modal when clicking outside
 $(window).on('click', function(event) {
@@ -863,11 +895,10 @@ $(window).on('click', function(event) {
 $('#evaluation-form').on('submit', function(e) {
     e.preventDefault();
     
+    // Recolectar datos de evaluación de los radio buttons
     var evaluationData = {};
-    $(this).find('select').each(function() {
-        if ($(this).val()) {
-            evaluationData[$(this).attr('name')] = $(this).val();
-        }
+    $(this).find('input[type="radio"]:checked').each(function() {
+        evaluationData[$(this).attr('name')] = $(this).val();
     });
     
     $.ajax({

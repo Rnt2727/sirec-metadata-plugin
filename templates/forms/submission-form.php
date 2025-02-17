@@ -123,14 +123,14 @@
                 <input type="text" id="level_other_countries" name="level_other_countries" required>
             </div>
             <div class="form-group">
-                <label for="file_type">Tipo de archivo (pdf, jpg, png, mp4, otros)</label>
+                <label for="file_type">15. Tipo de archivo (pdf, jpg, png, mp4, otros)</label>
                 <input type="text" id="file_type" name="file_type" required>
             </div>
             <div class="form-group">
                 <label for="resource_file">
-                    15. Archivo del recurso
+                    16. Archivo del recurso
                     <span class="info-icon">?
-                        <span class="tooltip">16. Seleccione el archivo del recurso educativo</span>
+                        <span class="tooltip">Seleccione el archivo del recurso educativo</span>
                     </span>
                 </label>
                 <div class="file-input-wrapper">
@@ -146,7 +146,7 @@
 
             <div class="form-group">
                 <label for="license">
-                    16. Licencia
+                    17. Licencia
                     <span class="info-icon">?
                         <span class="tooltip">Seleccione el tipo de licencia para su recurso</span>
                     </span>
