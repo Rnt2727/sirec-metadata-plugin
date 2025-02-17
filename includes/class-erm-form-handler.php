@@ -273,45 +273,12 @@ class ERM_Form_Handler {
     public function handle_ajax_submission() {
         check_ajax_referer('submit_resource_form', 'nonce');
         
-        $response = array('success' => false, 'message' => '');
-        
-        if (empty($_POST['title']) || empty($_POST['author']) || empty($_POST['author_email'])) {
-            $response['message'] = 'Por favor complete todos los campos requeridos.';
-            wp_send_json($response);
+        if (!isset($_POST['title']) || empty($_POST['title'])) {
+            wp_send_json_error('Título es requerido');
             return;
         }
-
-        if (!isset($_FILES['resource_file'])) {
-            wp_send_json_error('No se ha proporcionado ningún archivo');
-            return;
-        }
-
-        $file = $_FILES['resource_file'];
-        $allowed_types = array(
-            'html' => 'text/html',
-            'pdf' => 'application/pdf',
-            'mp4' => 'video/mp4',
-            'mp3' => 'audio/mpeg',
-            'ppt' => 'application/vnd.ms-powerpoint',
-            'pptx' => 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-            'doc' => 'application/msword',
-            'docx' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-            'jpg' => 'image/jpeg',
-            'png' => 'image/png',
-            'exe' => 'application/x-msdownload',
-            'apk' => 'application/vnd.android.package-archive'
-        );
-
-        $upload = wp_handle_upload($file, array(
-            'test_form' => false,
-            'mimes' => $allowed_types
-        ));
-
-        if (isset($upload['error'])) {
-            wp_send_json_error('Error al subir el archivo: ' . $upload['error']);
-            return;
-        }
-        
+    
+        // Procesar los datos del formulario
         $data = array(
             'title' => sanitize_text_field($_POST['title']),
             'subtitle' => sanitize_text_field($_POST['subtitle']),
@@ -324,35 +291,134 @@ class ERM_Form_Handler {
             'knowledge_area_other_countries' => sanitize_text_field($_POST['knowledge_area_other_countries']),
             'description' => sanitize_textarea_field($_POST['description']),
             'publication_date' => sanitize_text_field($_POST['publication_date']),
-            'last_update' => current_time('Y-m-d'),
             'language' => sanitize_text_field($_POST['language']),
             'school_sequence' => sanitize_text_field($_POST['school_sequence']),
+            'age' => sanitize_text_field($_POST['age']),
             'level_other_countries' => sanitize_text_field($_POST['level_other_countries']),
             'file_type' => sanitize_text_field($_POST['file_type']),
             'visual_format' => sanitize_text_field($_POST['visual_format']),
             'target_user' => sanitize_text_field($_POST['target_user']),
             'skills_competencies' => sanitize_text_field($_POST['skills_competencies']),
             'license' => sanitize_text_field($_POST['license']),
-            'cab_rating' => sanitize_text_field($_POST['cab_rating']),
-            'cab_seal' => sanitize_text_field($_POST['cab_seal']),
-            'age' => sanitize_text_field($_POST['age']),
-            'file_url' => $upload['url'],
-            'file_path' => $upload['file'],
-            'file_type' => pathinfo($file['name'], PATHINFO_EXTENSION)
+            'submission_date' => current_time('mysql')
         );
-
-        
-        $result = $this->db->insert_resource($data);
-        
-        if ($result) {
-            wp_send_json_success(array(
-                'message' => '¡Recurso enviado exitosamente!',
-                'file_url' => $upload['url']
-            ));
+    
+        // Insertar el recurso en la base de datos
+        $insert_result = $this->db->insert_resource($data);
+    
+        if ($insert_result) {
+            // Preparar y enviar el correo de confirmación
+            $subject = 'Confirmación de envío de Recurso Educativo - SIREC';
+            $message = '<!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <style>
+                    @media only screen and (max-width: 600px) {
+                        .content-table td {display: block; width: 100% !important;}
+                    }
+                </style>
+            </head>
+            <body style="margin:0;padding:0;font-family:\'Montserrat\',Arial,sans-serif;background-color:#f8f9fa;">
+                <table role="presentation" style="width:100%;border-collapse:collapse;background-color:#ffffff;">
+                    <tr>
+                        <td style="padding:30px 0;text-align:center;border-bottom:3px solid #0093D0;">
+                            <img src="https://convenioandresbello.org/wp-content/uploads/2023/11/logo_CAB_2024.png" alt="Logo CAB" style="max-width:280px;height:auto;">
+                        </td>
+                    </tr>
+                </table>
+                
+                <table role="presentation" style="max-width:600px;margin:30px auto;background-color:#ffffff;border-radius:10px;box-shadow:0 4px 12px rgba(0,0,0,0.1);">
+                    <tr>
+                        <td style="padding:40px 30px;">
+                            <h1 style="color:#1A3D8F;font-size:26px;margin-bottom:25px;border-bottom:2px solid #0093D0;padding-bottom:15px;font-weight:600;">
+                                Confirmación de Recepción de Recurso Educativo
+                            </h1>
+                            
+                            <p style="color:#4a5568;font-size:16px;line-height:1.6;margin-bottom:30px;">
+                                Estimado/a ' . esc_html($data['author']) . ',
+                            </p>
+                            
+                            <div style="background-color:#f8f9fa;border-left:4px solid #0093D0;padding:20px;border-radius:8px;margin-bottom:30px;">
+                                <p style="color:#1A3D8F;font-size:18px;font-weight:600;margin:0;">
+                                    Hemos recibido exitosamente tu propuesta de recurso educativo.
+                                </p>
+                            </div>
+                            
+                            <h2 style="color:#1A3D8F;font-size:20px;margin-top:30px;">Detalles del Recurso Enviado:</h2>
+                            <table style="width:100%;border-collapse:collapse;margin-top:15px;">
+                                <tr><td style="padding:10px;background-color:#f8f9fa;border:1px solid #e2e8f0;font-weight:bold;">Título:</td><td style="padding:10px;border:1px solid #e2e8f0;">' . esc_html($data['title']) . '</td></tr>
+                                <tr><td style="padding:10px;background-color:#f8f9fa;border:1px solid #e2e8f0;font-weight:bold;">Subtítulo:</td><td style="padding:10px;border:1px solid #e2e8f0;">' . esc_html($data['subtitle']) . '</td></tr>
+                                <tr><td style="padding:10px;background-color:#f8f9fa;border:1px solid #e2e8f0;font-weight:bold;">Categoría:</td><td style="padding:10px;border:1px solid #e2e8f0;">' . esc_html($data['category']) . '</td></tr>
+                                <tr><td style="padding:10px;background-color:#f8f9fa;border:1px solid #e2e8f0;font-weight:bold;">Autor:</td><td style="padding:10px;border:1px solid #e2e8f0;">' . esc_html($data['author']) . '</td></tr>
+                                <tr><td style="padding:10px;background-color:#f8f9fa;border:1px solid #e2e8f0;font-weight:bold;">Email:</td><td style="padding:10px;border:1px solid #e2e8f0;">' . esc_html($data['author_email']) . '</td></tr>
+                                <tr><td style="padding:10px;background-color:#f8f9fa;border:1px solid #e2e8f0;font-weight:bold;">Procedencia:</td><td style="padding:10px;border:1px solid #e2e8f0;">' . esc_html($data['origin']) . '</td></tr>
+                                <tr><td style="padding:10px;background-color:#f8f9fa;border:1px solid #e2e8f0;font-weight:bold;">País:</td><td style="padding:10px;border:1px solid #e2e8f0;">' . esc_html($data['country']) . '</td></tr>
+                                <tr><td style="padding:10px;background-color:#f8f9fa;border:1px solid #e2e8f0;font-weight:bold;">Área de Conocimiento:</td><td style="padding:10px;border:1px solid #e2e8f0;">' . esc_html($data['knowledge_area']) . '</td></tr>
+                                <tr><td style="padding:10px;background-color:#f8f9fa;border:1px solid #e2e8f0;font-weight:bold;">Áreas en Otros Países:</td><td style="padding:10px;border:1px solid #e2e8f0;">' . esc_html($data['knowledge_area_other_countries']) . '</td></tr>
+                                <tr><td style="padding:10px;background-color:#f8f9fa;border:1px solid #e2e8f0;font-weight:bold;">Descripción:</td><td style="padding:10px;border:1px solid #e2e8f0;">' . esc_html($data['description']) . '</td></tr>
+                                <tr><td style="padding:10px;background-color:#f8f9fa;border:1px solid #e2e8f0;font-weight:bold;">Fecha de Publicación:</td><td style="padding:10px;border:1px solid #e2e8f0;">' . esc_html($data['publication_date']) . '</td></tr>
+                                <tr><td style="padding:10px;background-color:#f8f9fa;border:1px solid #e2e8f0;font-weight:bold;">Idioma:</td><td style="padding:10px;border:1px solid #e2e8f0;">' . esc_html($data['language']) . '</td></tr>
+                                <tr><td style="padding:10px;background-color:#f8f9fa;border:1px solid #e2e8f0;font-weight:bold;">Secuencia Escolar:</td><td style="padding:10px;border:1px solid #e2e8f0;">' . esc_html($data['school_sequence']) . '</td></tr>
+                                <tr><td style="padding:10px;background-color:#f8f9fa;border:1px solid #e2e8f0;font-weight:bold;">Edad:</td><td style="padding:10px;border:1px solid #e2e8f0;">' . esc_html($data['age']) . '</td></tr>
+                                <tr><td style="padding:10px;background-color:#f8f9fa;border:1px solid #e2e8f0;font-weight:bold;">Nivel en Otros Países:</td><td style="padding:10px;border:1px solid #e2e8f0;">' . esc_html($data['level_other_countries']) . '</td></tr>
+                                <tr><td style="padding:10px;background-color:#f8f9fa;border:1px solid #e2e8f0;font-weight:bold;">Tipo de Archivo:</td><td style="padding:10px;border:1px solid #e2e8f0;">' . esc_html($data['file_type']) . '</td></tr>
+                                <tr><td style="padding:10px;background-color:#f8f9fa;border:1px solid #e2e8f0;font-weight:bold;">Formato Visual:</td><td style="padding:10px;border:1px solid #e2e8f0;">' . esc_html($data['visual_format']) . '</td></tr>
+                                <tr><td style="padding:10px;background-color:#f8f9fa;border:1px solid #e2e8f0;font-weight:bold;">Usuario Destinatario:</td><td style="padding:10px;border:1px solid #e2e8f0;">' . esc_html($data['target_user']) . '</td></tr>
+                                <tr><td style="padding:10px;background-color:#f8f9fa;border:1px solid #e2e8f0;font-weight:bold;">Habilidades y Competencias:</td><td style="padding:10px;border:1px solid #e2e8f0;">' . esc_html($data['skills_competencies']) . '</td></tr>
+                                <tr><td style="padding:10px;background-color:#f8f9fa;border:1px solid #e2e8f0;font-weight:bold;">Licencia:</td><td style="padding:10px;border:1px solid #e2e8f0;">' . esc_html($data['license']) . '</td></tr>
+                            </table>
+                            
+                            <div style="background-color:#f8f9fa;border-left:4px solid #0093D0;padding:20px;border-radius:8px;margin-top:35px;">
+                                <p style="color:#1A3D8F;font-size:14px;line-height:1.6;margin:0;">
+                                    <strong>Próximos pasos:</strong><br>
+                                    Tu recurso será revisado por nuestro equipo. 
+                                    Te notificaremos por correo electrónico cuando haya sido evaluado.
+                                </p>
+                            </div>
+                            
+                            <div style="background-color:#f8f9fa;border-left:4px solid #0093D0;padding:20px;border-radius:8px;margin-top:20px;">
+                                <p style="color:#1A3D8F;font-size:14px;line-height:1.6;margin:0;">
+                                    <strong>¿Necesitas ayuda?</strong><br>
+                                    Si tienes preguntas sobre el estado de tu recurso o necesitas asistencia,
+                                    no dudes en contactarnos a través de nuestro correo: <a href="mailto:sirec@convenioandresbello.org" style="color:#0093D0;">sirec@convenioandresbello.org</a>
+                                </p>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+                
+                <table role="presentation" style="max-width:600px;margin:20px auto;text-align:center;">
+                    <tr>
+                        <td style="padding:25px 0;">
+                            <p style="color:#666666;font-size:12px;line-height:1.6;">
+                                © ' . date('Y') . ' SIREC - Sistema de Recursos Educativos CAB<br>
+                                Todos los derechos reservados<br>
+                                <a href="https://convenioandresbello.org" style="color:#0093D0;text-decoration:none;">convenioandresbello.org</a>
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+            </body>
+            </html>';
+            
+            $headers = array('Content-Type: text/html; charset=UTF-8');
+            $email_sent = wp_mail($data['author_email'], $subject, $message, $headers);
+            
+            if ($email_sent) {
+                wp_send_json_success(array(
+                    'message' => 'Recurso enviado exitosamente y notificación enviada',
+                    'email_sent' => true
+                ));
+            } else {
+                wp_send_json_success(array(
+                    'message' => 'Recurso enviado pero hubo un problema al enviar la notificación',
+                    'email_sent' => false
+                ));
+            }
         } else {
-            @unlink($upload['file']); 
-            wp_send_json_error('Error al guardar el recurso en la base de datos.');
+            wp_send_json_error('Error al guardar el recurso');
         }
-        
     }
 }

@@ -146,7 +146,7 @@
 
             <div class="form-group">
                 <label for="license">
-                    Licencia
+                    16. Licencia
                     <span class="info-icon">?
                         <span class="tooltip">Seleccione el tipo de licencia para su recurso</span>
                     </span>
