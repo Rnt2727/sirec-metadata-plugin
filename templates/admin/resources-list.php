@@ -1,31 +1,37 @@
 <?php
-
 $current_user = wp_get_current_user();
 $user_roles = $current_user->roles;
 
+// Inicializar $resources como array vacío por defecto
+$resources = array();
 
-$db = new ERM_Database();
-// $resources = $db->get_resources();
-$db = new ERM_Database();
+try {
+    $db = new ERM_Database();
 
-// Determinar si es catalogador o evaluador
-$is_catalogator = in_array('catalogator', $user_roles);
-$is_evaluator = in_array('evaluator', $user_roles);
-$is_administrator = in_array('administrator', $user_roles);
+    // Determinar si es catalogador o evaluador
+    $is_catalogator = in_array('catalogator', $user_roles);
+    $is_evaluator = in_array('evaluator', $user_roles);
+    $is_administrator = in_array('administrator', $user_roles);
 
-if (!$is_catalogator && !$is_evaluator && !$is_administrator) {
-    wp_die('No tienes permisos para acceder a esta página.');
+    if (!$is_catalogator && !$is_evaluator && !$is_administrator) {
+        wp_die('No tienes permisos para acceder a esta página.');
+    }
+
+    // Obtener recursos según el rol
+    if ($is_administrator) {
+        $resources = $db->get_resources_with_min_score(81);
+    } elseif ($is_catalogator) {
+        $resources = $db->get_resources();
+    } elseif ($is_evaluator) {
+        $resources = $db->get_approved_resources();
+    }
+
+} catch (Exception $e) {
+    error_log('Error en resources-list.php: ' . $e->getMessage());
 }
 
-// Obtener recursos según el rol
-if ($is_administrator) {
-    $resources = $db->get_resources_with_min_score(81);
-} elseif ($is_catalogator) {
-    $resources = $db->get_resources(); 
-} elseif ($is_evaluator) {
-    $resources = $db->get_approved_resources();
-}
-
+// Asegurar que $resources sea un array
+$resources = is_array($resources) ? $resources : array();
 ?>
 
 <!-- Include Tutor LMS styles -->
@@ -360,8 +366,10 @@ tr.editing td {
         <?php 
         if ($is_catalogator) {
             echo esc_html('Panel de Catalogador - Recursos Educativos');
-        } else {
+        } elseif ($is_evaluator) {
             echo esc_html('Panel de Evaluador - Recursos Educativos Aprobados');
+        } else {
+            echo esc_html('Panel de Administrador - Recursos Educativos');
         }
         ?>
     </div>
@@ -383,8 +391,18 @@ tr.editing td {
         </div>
     </div>
 
-    <?php if($resources && count($resources) > 0): ?>
-        <div class="table-outer-wrapper">
+
+
+
+
+
+
+
+
+
+
+
+    <div class="table-outer-wrapper">
         <div class="tutor-table-responsive">
             <table class="tutor-table tutor-table-middle">
                 <thead>
@@ -407,11 +425,10 @@ tr.editing td {
                         <th width="10%"><?php esc_html_e('Nivel en Otros Países', 'tutor'); ?></th>
                         <th width="8%"><?php esc_html_e('Tipo de Archivo', 'tutor'); ?></th>
                         <th width="10%"><?php esc_html_e('Archivo', 'tutor'); ?></th>
-<th width="10%"><?php esc_html_e('Licencia', 'tutor'); ?></th>
+                        <th width="10%"><?php esc_html_e('Licencia', 'tutor'); ?></th>
                         <th width="8%"><?php esc_html_e('Formato Visual', 'tutor'); ?></th>
                         <th width="10%"><?php esc_html_e('Usuario Destinatario', 'tutor'); ?></th>
                         <th width="15%"><?php esc_html_e('Habilidades y Competencias', 'tutor'); ?></th>
-                        <th width="8%"><?php esc_html_e('Licencia', 'tutor'); ?></th>
                         <th width="8%"><?php esc_html_e('Calificación CAB', 'tutor'); ?></th>
                         <th width="8%"><?php esc_html_e('Sello CAB', 'tutor'); ?></th>
 
@@ -421,12 +438,10 @@ tr.editing td {
                         <th width="10%"><?php esc_html_e('Fecha de Envío', 'tutor'); ?></th>
 
                         <th width="10%"><?php esc_html_e('Acciones', 'tutor'); ?></th>
-
                     </tr>
                 </thead>
-
                 <tbody>
-                    <?php if($resources && count($resources) > 0): ?>
+                    <?php if(!empty($resources)): ?>
                         <?php foreach ($resources as $resource): ?>
                             <tr data-resource-id="<?php echo esc_attr($resource->id); ?>">
                                 <td>
@@ -606,13 +621,7 @@ tr.editing td {
                                     <input type="text" class="editable-field tutor-fs-7" name="skills_competencies" 
                                         value="<?php echo esc_attr($resource->skills_competencies); ?>" style="display: none;">
                                 </td>
-                                <td>
-                                    <span class="display-value tutor-fs-7">
-                                        <?php echo esc_html($resource->license); ?>
-                                    </span>
-                                    <input type="text" class="editable-field tutor-fs-7" name="license" 
-                                        value="<?php echo esc_attr($resource->license); ?>" style="display: none;">
-                                </td>
+                               
                                 <td>
                                     <span class="display-value tutor-fs-7">
                                         <?php echo esc_html($resource->cab_rating); ?>
@@ -661,37 +670,37 @@ tr.editing td {
                                     </span>
                                 </td>
                                 <td>
-    <?php if ($is_catalogator): ?>
-        <!-- Mostrar botones de aprobar/rechazar solo para catalogadores -->
-        <?php if (!isset($resource->approved_by_catalogator) || $resource->approved_by_catalogator === null): ?>
-            <div class="approval-buttons">
-                <button type="button" class="tutor-btn tutor-btn-success tutor-btn-sm approve-btn" 
-                        data-resource-id="<?php echo esc_attr($resource->id); ?>"
-                        data-author-email="<?php echo esc_attr($resource->author_email); ?>">
-                    Aprobar
-                </button>
-                <button type="button" class="tutor-btn tutor-btn-danger tutor-btn-sm reject-btn" 
-                        data-resource-id="<?php echo esc_attr($resource->id); ?>"
-                        data-author-email="<?php echo esc_attr($resource->author_email); ?>">
-                    Rechazar
-                </button>
-            </div>
-        <?php endif; ?>
-    <?php elseif ($is_evaluator): ?>
-        <button type="button" class="tutor-btn tutor-btn-primary tutor-btn-sm evaluate-btn"
-            data-resource-id="<?php echo esc_attr($resource->id); ?>"
-            data-category="<?php echo esc_attr($resource->category); ?>">
-            Evaluar
-        </button>
-    <?php endif; ?>
-    
-    <?php if (!$is_administrator): ?>
-        <button type="button" class="tutor-btn tutor-btn-outline-primary tutor-btn-sm edit-btn">
-            <span class="tutor-icon-edit"></span>
-            <span>Editar</span>
-        </button>
-    <?php endif; ?>
-</td>
+                                    <?php if ($is_catalogator): ?>
+                                        <!-- Mostrar botones de aprobar/rechazar solo para catalogadores -->
+                                        <?php if (!isset($resource->approved_by_catalogator) || $resource->approved_by_catalogator === null): ?>
+                                            <div class="approval-buttons">
+                                                <button type="button" class="tutor-btn tutor-btn-success tutor-btn-sm approve-btn" 
+                                                        data-resource-id="<?php echo esc_attr($resource->id); ?>"
+                                                        data-author-email="<?php echo esc_attr($resource->author_email); ?>">
+                                                    Aprobar
+                                                </button>
+                                                <button type="button" class="tutor-btn tutor-btn-danger tutor-btn-sm reject-btn" 
+                                                        data-resource-id="<?php echo esc_attr($resource->id); ?>"
+                                                        data-author-email="<?php echo esc_attr($resource->author_email); ?>">
+                                                    Rechazar
+                                                </button>
+                                            </div>
+                                        <?php endif; ?>
+                                    <?php elseif ($is_evaluator): ?>
+                                            <button type="button" class="tutor-btn tutor-btn-primary tutor-btn-sm evaluate-btn"
+                                                data-resource-id="<?php echo esc_attr($resource->id); ?>"
+                                                data-category="<?php echo esc_attr($resource->category); ?>">
+                                                Evaluar
+                                            </button>
+                                        <?php endif; ?>
+                                        
+                                        <?php if (!$is_administrator): ?>
+                                            <button type="button" class="tutor-btn tutor-btn-outline-primary tutor-btn-sm edit-btn">
+                                                <span class="tutor-icon-edit"></span>
+                                                <span>Editar</span>
+                                            </button>
+                                        <?php endif; ?>
+                                    </td>
                                 <td>
                                     <div class="tutor-d-flex tutor-align-center tutor-gap-1">
 
@@ -718,30 +727,21 @@ tr.editing td {
                                 </td>
                             </tr>
                         <?php endforeach; ?>
-                    <?php else: ?>
-                        <tr>
-                            <td colspan="24">
-                                <div class="tutor-empty-state td-empty-state">
-                                    <div class="tutor-fs-6 tutor-color-secondary tutor-text-center">
-                                        <?php esc_html_e('No hay recursos disponibles.', 'tutor'); ?>
+                        <?php else: ?>
+                            <tr>
+                                <td colspan="30">
+                                    <div class="tutor-empty-state td-empty-state" style="padding: 30px; text-align: center;">
+                                        <div class="tutor-fs-6 tutor-color-secondary tutor-text-center">
+                                            <?php esc_html_e('No hay recursos disponibles.', 'tutor'); ?>
+                                        </div>
                                     </div>
-                                </div>
-                            </td>
-                        </tr>
-                    <?php endif; ?>
+                                </td>
+                            </tr>
+                        <?php endif; ?>
                 </tbody>
             </table>
-</div>
         </div>
-        
-    <?php else: ?>
-        <div class="tutor-empty-state td-empty-state">
-            <img src="<?php echo esc_url(tutor()->url . 'assets/images/empty-state.svg'); ?>" alt="">
-            <div class="tutor-fs-6 tutor-color-secondary tutor-text-center">
-                <?php esc_html_e('No hay recursos disponibles.', 'tutor'); ?>
-            </div>
-        </div>
-    <?php endif; ?>
+    </div>
 </div>
 
 <div id="evaluation-modal" class="tutor-modal" style="display: none;">

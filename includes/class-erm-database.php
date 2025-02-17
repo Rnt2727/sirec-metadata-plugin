@@ -7,6 +7,21 @@ class ERM_Database {
         global $wpdb;
         $this->wpdb = $wpdb;
         $this->table_name = $wpdb->prefix . 'educational_resources';
+        
+        // Verificar y crear la tabla si no existe
+        $this->ensure_table_exists();
+    }
+
+    private function ensure_table_exists() {
+        try {
+            if($this->wpdb->get_var("SHOW TABLES LIKE '{$this->table_name}'") != $this->table_name) {
+                self::create_tables();
+            }
+        } catch (Exception $e) {
+            error_log('Error al verificar/crear la tabla: ' . $e->getMessage());
+            return false;
+        }
+        return true;
     }
     
     public function update_resource($id, $data) {
@@ -40,11 +55,17 @@ class ERM_Database {
     }
 
     public function get_approved_resources() {
-        return $this->wpdb->get_results(
-            "SELECT * FROM {$this->table_name} 
-             WHERE approved_by_catalogator = 1 
-             ORDER BY id DESC"
-        );
+        try {
+            $results = $this->wpdb->get_results(
+                "SELECT * FROM {$this->table_name} 
+                 WHERE approved_by_catalogator = 1 
+                 ORDER BY id DESC"
+            );
+            return is_array($results) ? $results : array();
+        } catch (Exception $e) {
+            error_log('Error en get_approved_resources: ' . $e->getMessage());
+            return array();
+        }
     }
 
     public function get_resource_by_id($id) {
@@ -104,18 +125,34 @@ class ERM_Database {
     }
     
     public function get_resources() {
-        return $this->wpdb->get_results("SELECT * FROM {$this->table_name} ORDER BY id DESC");
+        if (!$this->ensure_table_exists()) {
+            return array();
+        }
+        
+        try {
+            $results = $this->wpdb->get_results("SELECT * FROM {$this->table_name} ORDER BY id DESC");
+            return is_array($results) ? $results : array();
+        } catch (Exception $e) {
+            error_log('Error en get_resources: ' . $e->getMessage());
+            return array();
+        }
     }
 
     public function get_resources_with_min_score($min_score) {
-        return $this->wpdb->get_results(
-            $this->wpdb->prepare(
-                "SELECT * FROM {$this->table_name} 
-                 WHERE evaluation_score >= %f 
-                 ORDER BY evaluation_score DESC",
-                $min_score
-            )
-        );
+        try {
+            $results = $this->wpdb->get_results(
+                $this->wpdb->prepare(
+                    "SELECT * FROM {$this->table_name} 
+                     WHERE evaluation_score >= %f 
+                     ORDER BY evaluation_score DESC",
+                    $min_score
+                )
+            );
+            return is_array($results) ? $results : array();
+        } catch (Exception $e) {
+            error_log('Error en get_resources_with_min_score: ' . $e->getMessage());
+            return array();
+        }
     }
 
     public static function drop_tables() {
