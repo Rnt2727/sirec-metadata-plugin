@@ -105,6 +105,17 @@ class ERM_Database {
         return $this->wpdb->get_results("SELECT * FROM {$this->table_name} ORDER BY id DESC");
     }
 
+    public function get_resources_with_min_score($min_score) {
+        return $this->wpdb->get_results(
+            $this->wpdb->prepare(
+                "SELECT * FROM {$this->table_name} 
+                 WHERE evaluation_score >= %f 
+                 ORDER BY evaluation_score DESC",
+                $min_score
+            )
+        );
+    }
+
     public static function drop_tables() {
         global $wpdb;
         $table_name = $wpdb->prefix . 'educational_resources';

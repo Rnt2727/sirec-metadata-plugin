@@ -9,18 +9,20 @@ $db = new ERM_Database();
 $db = new ERM_Database();
 
 // Determinar si es catalogador o evaluador
-$is_catalogator = in_array('catalogator', $user_roles) || in_array('administrator', $user_roles);
+$is_catalogator = in_array('catalogator', $user_roles);
 $is_evaluator = in_array('evaluator', $user_roles);
+$is_administrator = in_array('administrator', $user_roles);
 
-if (!$is_catalogator && !$is_evaluator) {
+if (!$is_catalogator && !$is_evaluator && !$is_administrator) {
     wp_die('No tienes permisos para acceder a esta página.');
 }
 
 // Obtener recursos según el rol
-if ($is_catalogator) {
-    $resources = $db->get_resources(); // Obtiene todos los recursos
+if ($is_administrator) {
+    $resources = $db->get_resources_with_min_score(81);
+} elseif ($is_catalogator) {
+    $resources = $db->get_resources(); 
 } elseif ($is_evaluator) {
-    // Solo obtiene recursos aprobados por el catalogador
     $resources = $db->get_approved_resources();
 }
 
@@ -627,30 +629,37 @@ tr.editing td {
                                     </span>
                                 </td>
                                 <td>
-                                    <?php if ($is_catalogator): ?>
-                                        <!-- Mostrar botones de aprobar/rechazar solo para catalogadores -->
-                                        <?php if (!isset($resource->approved_by_catalogator) || $resource->approved_by_catalogator === null): ?>
-                                            <div class="approval-buttons">
-                                                <button type="button" class="tutor-btn tutor-btn-success tutor-btn-sm approve-btn" 
-                                                        data-resource-id="<?php echo esc_attr($resource->id); ?>"
-                                                        data-author-email="<?php echo esc_attr($resource->author_email); ?>">
-                                                    Aprobar
-                                                </button>
-                                                <button type="button" class="tutor-btn tutor-btn-danger tutor-btn-sm reject-btn" 
-                                                        data-resource-id="<?php echo esc_attr($resource->id); ?>"
-                                                        data-author-email="<?php echo esc_attr($resource->author_email); ?>">
-                                                    Rechazar
-                                                </button>
-                                            </div>
-                                        <?php else: ?>
-                                            <span class="tutor-badge-outline-<?php echo $resource->approved_by_catalogator ? 'success' : 'danger'; ?>">
-                                                <?php echo $resource->approved_by_catalogator ? 'Aprobado' : 'Rechazado'; ?>
-                                            </span>
-                                        <?php endif; ?>
-                                    <?php else: ?>
-                                        
-                                    <?php endif; ?>
-                                </td>
+    <?php if ($is_catalogator): ?>
+        <!-- Mostrar botones de aprobar/rechazar solo para catalogadores -->
+        <?php if (!isset($resource->approved_by_catalogator) || $resource->approved_by_catalogator === null): ?>
+            <div class="approval-buttons">
+                <button type="button" class="tutor-btn tutor-btn-success tutor-btn-sm approve-btn" 
+                        data-resource-id="<?php echo esc_attr($resource->id); ?>"
+                        data-author-email="<?php echo esc_attr($resource->author_email); ?>">
+                    Aprobar
+                </button>
+                <button type="button" class="tutor-btn tutor-btn-danger tutor-btn-sm reject-btn" 
+                        data-resource-id="<?php echo esc_attr($resource->id); ?>"
+                        data-author-email="<?php echo esc_attr($resource->author_email); ?>">
+                    Rechazar
+                </button>
+            </div>
+        <?php endif; ?>
+    <?php elseif ($is_evaluator): ?>
+        <button type="button" class="tutor-btn tutor-btn-primary tutor-btn-sm evaluate-btn"
+            data-resource-id="<?php echo esc_attr($resource->id); ?>"
+            data-category="<?php echo esc_attr($resource->category); ?>">
+            Evaluar
+        </button>
+    <?php endif; ?>
+    
+    <?php if (!$is_administrator): ?>
+        <button type="button" class="tutor-btn tutor-btn-outline-primary tutor-btn-sm edit-btn">
+            <span class="tutor-icon-edit"></span>
+            <span>Editar</span>
+        </button>
+    <?php endif; ?>
+</td>
                                 <td>
                                     <div class="tutor-d-flex tutor-align-center tutor-gap-1">
 
