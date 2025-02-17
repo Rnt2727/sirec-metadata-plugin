@@ -429,7 +429,6 @@ tr.editing td {
                         <th width="8%"><?php esc_html_e('Formato Visual', 'tutor'); ?></th>
                         <th width="10%"><?php esc_html_e('Usuario Destinatario', 'tutor'); ?></th>
                         <th width="15%"><?php esc_html_e('Habilidades y Competencias', 'tutor'); ?></th>
-                        <th width="8%"><?php esc_html_e('Calificación CAB', 'tutor'); ?></th>
                         <th width="8%"><?php esc_html_e('Sello CAB', 'tutor'); ?></th>
 
                         <th width="8%"><?php esc_html_e('Estado', 'tutor'); ?></th>
@@ -622,13 +621,7 @@ tr.editing td {
                                         value="<?php echo esc_attr($resource->skills_competencies); ?>" style="display: none;">
                                 </td>
                                
-                                <td>
-                                    <span class="display-value tutor-fs-7">
-                                        <?php echo esc_html($resource->cab_rating); ?>
-                                    </span>
-                                    <input type="text" class="editable-field tutor-fs-7" name="cab_rating" 
-                                        value="<?php echo esc_attr($resource->cab_rating); ?>" style="display: none;">
-                                </td>
+                               
                                 <td>
                                     <span class="display-value tutor-fs-7">
                                         <?php echo esc_html($resource->cab_seal); ?>

@@ -23,40 +23,50 @@ class ERM_Form_Handler {
     }
 
     public function handle_evaluation_submission() {
-        check_ajax_referer('update_resource', 'nonce');
-        
-        if (!isset($_POST['resource_id']) || !isset($_POST['evaluation_data'])) {
-            wp_send_json_error('Datos incompletos');
-            return;
-        }
-        
-        $resource_id = intval($_POST['resource_id']);
-        $evaluation_data = $_POST['evaluation_data'];
-        
-        if (!is_array($evaluation_data)) {
-            wp_send_json_error('Formato de datos inválido');
-            return;
-        }
-        
-        $evaluator = new ERM_Evaluator();
-        $score = $evaluator->calculate_evaluation_score($evaluation_data);
-        
-        if ($score === null) {
-            wp_send_json_error('No hay preguntas válidas para calcular el puntaje');
-            return;
-        }
-        
-        $update_result = $this->db->update_resource($resource_id, array(
-            'evaluation_score' => $score
-        ));
-        
-        if ($update_result !== false) {
-            wp_send_json_success(array(
-                'message' => 'Evaluación guardada exitosamente',
-                'score' => $score
-            ));
-        } else {
-            wp_send_json_error('Error al guardar la evaluación en la base de datos');
+        try {
+            check_ajax_referer('update_resource', 'nonce');
+            
+            if (!isset($_POST['resource_id']) || !isset($_POST['evaluation_data'])) {
+                wp_send_json_error('Datos incompletos');
+                return;
+            }
+            
+            $resource_id = intval($_POST['resource_id']);
+            $evaluation_data = $_POST['evaluation_data'];
+            
+            if (!is_array($evaluation_data)) {
+                wp_send_json_error('Formato de datos inválido');
+                return;
+            }
+            
+            $evaluator = new ERM_Evaluator();
+            $score = $evaluator->calculate_evaluation_score($evaluation_data);
+            
+            if ($score === null) {
+                wp_send_json_error('No hay preguntas válidas para calcular el puntaje');
+                return;
+            }
+    
+            $seal = $evaluator->determine_seal($score);
+            
+            $update_data = array(
+                'evaluation_score' => $score,
+                'cab_seal' => $seal
+            );
+            
+            $update_result = $this->db->update_resource($resource_id, $update_data);
+            
+            if ($update_result !== false) {
+                wp_send_json_success(array(
+                    'message' => 'Evaluación guardada exitosamente',
+                    'score' => $score,
+                    'seal' => $seal
+                ));
+            } else {
+                wp_send_json_error('Error al guardar la evaluación en la base de datos');
+            }
+        } catch (Exception $e) {
+            wp_send_json_error('Error: ' . $e->getMessage());
         }
     }
 

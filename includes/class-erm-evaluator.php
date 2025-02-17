@@ -48,20 +48,17 @@ class ERM_Evaluator {
         );
     }
     
-    public function evaluate_resource($resource_id, $evaluation_data) {
-        $score = $this->calculate_score($evaluation_data);
-        return $this->determine_seal($score);
-    }
     
-    private function calculate_score($evaluation_data) {
-        // Implementación básica de cálculo de puntuación
-        return array_sum($evaluation_data) / count($evaluation_data);
-    }
-    
-    private function determine_seal($score) {
-        if ($score >= 91 && $score <= 94) return 'advanced';
-        if ($score >= 95 && $score <= 99) return 'superior';
-        if ($score == 100) return 'excellence';
+    public function determine_seal($score) {
+        if ($score >= 91 && $score <= 94) {
+            return 'Sello de Calidad Nivel Avanzado';
+        }
+        if ($score >= 95 && $score <= 99) {
+            return 'Sello de Calidad Nivel Superior';
+        }
+        if ($score == 100) {
+            return 'Sello de Calidad Nivel Excelencia';
+        }
         return null;
     }
 }
