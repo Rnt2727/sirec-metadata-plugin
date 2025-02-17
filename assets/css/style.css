@@ -400,6 +400,81 @@ button[type="submit"]:hover {
     background-color: #fff;
 }
 
+.dropdown-checkbox {
+    position: relative;
+    width: 100%;
+}
+
+.dropdown-header {
+    padding: 10px 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    background-color: #f9f9f9;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    width: 100%;
+    max-height: 400px;
+    overflow-y: auto;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    margin-top: 5px;
+    z-index: 1000;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.dropdown-content.show {
+    display: block;
+}
+
+.competency-group {
+    padding: 15px;
+    border-bottom: 1px solid #eee;
+}
+
+.competency-group h4 {
+    color: #0073aa;
+    margin: 0 0 10px 0;
+    font-size: 16px;
+}
+
+.subgroup {
+    margin-left: 15px;
+    margin-bottom: 15px;
+}
+
+.subgroup h5 {
+    color: #666;
+    margin: 10px 0 5px 0;
+    font-size: 14px;
+}
+
+.subgroup label {
+    display: block;
+    padding: 5px 0;
+    font-weight: normal;
+    color: #333;
+    font-size: 14px;
+}
+
+.subgroup label:hover {
+    background-color: #f5f5f5;
+}
+
+.dropdown-arrow {
+    transition: transform 0.3s ease;
+}
+
+.dropdown-header.active .dropdown-arrow {
+    transform: rotate(180deg);
+}
 
 @media screen and (min-width: 768px) {
     .tooltip {

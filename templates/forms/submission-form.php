@@ -187,7 +187,99 @@
             </div>
             <div class="form-group">
                 <label for="skills_competencies">20. Destrezas, habilidades y/o competencias principales que atiende</label>
-                <input type="text" id="skills_competencies" name="skills_competencies" required>
+                <div class="dropdown-checkbox">
+                    <div class="dropdown-header">
+                    Seleccionar habilidades y competencias
+                    <span class="dropdown-arrow">▼</span>
+                </div>
+                    <div class="dropdown-content" id="skillsDropdown">
+                        <!-- Socioemocional -->
+                        <div class="competency-group">
+                            <h4>Socioemocional</h4>
+                            
+                            <div class="subgroup">
+                                <h5>INTRAPERSONAL</h5>
+                                <label><input type="checkbox" name="skills_competencies[]" value="autonomia"> Autonomía</label>
+                                <label><input type="checkbox" name="skills_competencies[]" value="autoconocimiento"> Autoconocimiento</label>
+                                <label><input type="checkbox" name="skills_competencies[]" value="pensamiento_critico"> Pensamiento crítico</label>
+                                <label><input type="checkbox" name="skills_competencies[]" value="toma_decisiones"> Toma de decisiones</label>
+                                <label><input type="checkbox" name="skills_competencies[]" value="responsabilidad"> Responsabilidad</label>
+                                <label><input type="checkbox" name="skills_competencies[]" value="flexibilidad"> Flexibilidad</label>
+                                <label><input type="checkbox" name="skills_competencies[]" value="creatividad"> Creatividad</label>
+                            </div>
+
+                            <div class="subgroup">
+                                <h5>INTERPERSONAL</h5>
+                                <label><input type="checkbox" name="skills_competencies[]" value="comunicacion_asertiva"> Comunicación asertiva</label>
+                                <label><input type="checkbox" name="skills_competencies[]" value="resolucion_conflictos"> Resolución de conflictos</label>
+                                <label><input type="checkbox" name="skills_competencies[]" value="relaciones_colaboracion"> Relaciones de colaboración</label>
+                            </div>
+
+                            <div class="subgroup">
+                                <h5>CIUDADANÍA</h5>
+                                <label><input type="checkbox" name="skills_competencies[]" value="conciencia_social_ambiental"> Conciencia social y ambiental</label>
+                                <label><input type="checkbox" name="skills_competencies[]" value="respeto_diversidad"> Respeto a la diversidad y solidaridad</label>
+                                <label><input type="checkbox" name="skills_competencies[]" value="participacion_activa"> Participación activa</label>
+                                <label><input type="checkbox" name="skills_competencies[]" value="convivencia"> Convivencia</label>
+                                <label><input type="checkbox" name="skills_competencies[]" value="democracia"> Democracia</label>
+                                <label><input type="checkbox" name="skills_competencies[]" value="sustentabilidad"> Sustentabilidad</label>
+                            </div>
+                        </div>
+
+                        <!-- Comunicativo - Lingüística -->
+                        <div class="competency-group">
+                            <h4>Comunicativo - Lingüística</h4>
+                            
+                            <div class="subgroup">
+                                <h5>COMPRESIÓN DE TEXTOS</h5>
+                                <label><input type="checkbox" name="skills_competencies[]" value="conocimientos"> Conocimientos</label>
+                                <label><input type="checkbox" name="skills_competencies[]" value="comprension_textos"> Comprensión de textos orales y escritos</label>
+                            </div>
+
+                            <div class="subgroup">
+                                <h5>PRODUCCIÓN DE TEXTOS</h5>
+                                <label><input type="checkbox" name="skills_competencies[]" value="produccion_textos"> Producción de textos orales y escritos</label>
+                            </div>
+                        </div>
+
+                        <!-- Lógico - Matemática -->
+                        <div class="competency-group">
+                            <h4>Lógico - Matemática</h4>
+                            
+                            <div class="subgroup">
+                                <h5>RESOLUCIÓN DE PROBLEMAS</h5>
+                                <label><input type="checkbox" name="skills_competencies[]" value="resuelve_problemas"> Resuelve problemas numéricos</label>
+                                <label><input type="checkbox" name="skills_competencies[]" value="formula_problemas"> Formula problemas</label>
+                            </div>
+
+                            <div class="subgroup">
+                                <h5>ARGUMENTACIÓN</h5>
+                                <label><input type="checkbox" name="skills_competencies[]" value="razonamiento_deductivo"> Razonamiento deductivo</label>
+                            </div>
+                        </div>
+
+                        <!-- Investigación Científica -->
+                        <div class="competency-group">
+                            <h4>Investigación Científica</h4>
+                            
+                            <div class="subgroup">
+                                <h5>CONOCIMIENTO CIENTÍFICO</h5>
+                                <label><input type="checkbox" name="skills_competencies[]" value="explicar"> Explicar</label>
+                                <label><input type="checkbox" name="skills_competencies[]" value="exponer"> Exponer</label>
+                                <label><input type="checkbox" name="skills_competencies[]" value="identificar"> Identificar</label>
+                                <label><input type="checkbox" name="skills_competencies[]" value="analizar"> Analizar</label>
+                                <label><input type="checkbox" name="skills_competencies[]" value="relacionar"> Relacionar</label>
+                            </div>
+
+                            <div class="subgroup">
+                                <h5>APLICAR EL CONOCIMIENTO CIENTÍFICO</h5>
+                                <label><input type="checkbox" name="skills_competencies[]" value="formular_hipotesis"> Formular hipótesis</label>
+                                <label><input type="checkbox" name="skills_competencies[]" value="disenar"> Diseñar</label>
+                                <label><input type="checkbox" name="skills_competencies[]" value="experimentar"> Experimentar</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
             
         </div>
@@ -205,6 +297,45 @@
 
 <script>
 jQuery(document).ready(function($) {
+
+    $('.dropdown-header').on('click', function() {
+    const dropdown = document.getElementById('skillsDropdown');
+    const header = document.querySelector('.dropdown-header');
+    dropdown.classList.toggle('show');
+    header.classList.toggle('active');
+});
+
+    function toggleSkillsDropdown() {
+    const dropdown = document.getElementById('skillsDropdown');
+    const header = document.querySelector('.dropdown-header');
+    dropdown.classList.toggle('show');
+    header.classList.toggle('active');
+}
+
+// Cerrar el dropdown si se hace clic fuera de él
+document.addEventListener('click', function(event) {
+    const dropdown = document.getElementById('skillsDropdown');
+    const header = document.querySelector('.dropdown-header');
+    if (!event.target.closest('.dropdown-checkbox')) {
+        dropdown.classList.remove('show');
+        header.classList.remove('active');
+    }
+});
+
+// Actualizar el texto del header cuando se seleccionan opciones
+document.querySelectorAll('input[name="skills_competencies[]"]').forEach(checkbox => {
+    checkbox.addEventListener('change', function() {
+        const selectedCount = document.querySelectorAll('input[name="skills_competencies[]"]:checked').length;
+        const headerText = document.querySelector('.dropdown-header');
+        if (selectedCount > 0) {
+            headerText.textContent = `${selectedCount} competencias seleccionadas`;
+        } else {
+            headerText.textContent = 'Seleccionar habilidades y competencias';
+        }
+        headerText.appendChild(document.createElement('span')).textContent = ' ▼';
+        headerText.lastElementChild.className = 'dropdown-arrow';
+    });
+});
     /*Tooltip inicio*/
     const fieldDescriptions = {
         'title': 'Nombre completo del recurso educativo',
@@ -327,21 +458,36 @@ jQuery(document).ready(function($) {
 
     $('#educational-resource-form').on('submit', function(e) {
         e.preventDefault();
-        
-        // Si ya hay un envío en proceso, no hacer nada
+    
         if (isSubmitting) {
             return false;
         }
+        
+        // Obtener los checkboxes seleccionados
+        const selectedSkills = [];
+        $('input[name="skills_competencies[]"]:checked').each(function() {
+            selectedSkills.push($(this).val());
+        });
+        
+        // Crear un input hidden temporal para enviar los valores
+        if (!$('#skills_competencies_hidden').length) {
+            $('<input>').attr({
+                type: 'hidden',
+                id: 'skills_competencies_hidden',
+                name: 'skills_competencies'
+            }).appendTo(this);
+        }
+        
+        // Actualizar el valor del input hidden con las habilidades seleccionadas
+        $('#skills_competencies_hidden').val(selectedSkills.join(','));
         
         const $form = $(this);
         const $submitButton = $('#submit-button');
         const $spinner = $submitButton.find('.spinner');
         const $buttonText = $submitButton.find('.button-text');
         
-        // Marcar que hay un envío en proceso
         isSubmitting = true;
         
-        // Deshabilitar el botón y mostrar spinner
         $submitButton.prop('disabled', true);
         $spinner.show();
         $buttonText.text('Enviando...');

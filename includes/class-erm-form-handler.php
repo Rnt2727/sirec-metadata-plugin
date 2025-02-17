@@ -277,8 +277,10 @@ class ERM_Form_Handler {
             wp_send_json_error('Título es requerido');
             return;
         }
+
+        $skills_competencies = isset($_POST['skills_competencies']) ? 
+        sanitize_text_field($_POST['skills_competencies']) : '';
     
-        // Procesar los datos del formulario
         $data = array(
             'title' => sanitize_text_field($_POST['title']),
             'subtitle' => sanitize_text_field($_POST['subtitle']),
@@ -298,7 +300,7 @@ class ERM_Form_Handler {
             'file_type' => sanitize_text_field($_POST['file_type']),
             'visual_format' => sanitize_text_field($_POST['visual_format']),
             'target_user' => sanitize_text_field($_POST['target_user']),
-            'skills_competencies' => sanitize_text_field($_POST['skills_competencies']),
+            'skills_competencies' => $skills_competencies,
             'license' => sanitize_text_field($_POST['license']),
             'submission_date' => current_time('mysql')
         );
