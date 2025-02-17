@@ -123,37 +123,54 @@
                 <input type="text" id="level_other_countries" name="level_other_countries" required>
             </div>
             <div class="form-group">
-                <label for="file_type">15. Tipo de archivo (pdf, jpg, png, mp4, otros)</label>
+                <label for="file_type">Tipo de archivo (pdf, jpg, png, mp4, otros)</label>
                 <input type="text" id="file_type" name="file_type" required>
             </div>
             <div class="form-group">
-                <label for="resource_file">Archivo del recurso:</label>
-                <input type="file" 
-                    id="resource_file" 
-                    name="resource_file" 
-                    accept=".html,.pdf,.mp4,.mp3,.ppt,.pptx,.doc,.docx,.jpg,.png,.exe,.apk" 
-                    required>
-                <span class="file-description">Formatos permitidos: HTML, PDF, MP4, MP3, PPT, PPTX, DOC, DOCX, JPG, PNG, EXE, APK</span>
+                <label for="resource_file">
+                    15. Archivo del recurso
+                    <span class="info-icon">?
+                        <span class="tooltip">16. Seleccione el archivo del recurso educativo</span>
+                    </span>
+                </label>
+                <div class="file-input-wrapper">
+                    <input type="file" 
+                        id="resource_file" 
+                        name="resource_file" 
+                        accept=".html,.pdf,.mp4,.mp3,.ppt,.pptx,.doc,.docx,.jpg,.png,.exe,.apk" 
+                        required
+                        class="form-control">
+                    <span class="file-description">Formatos permitidos: HTML, PDF, MP4, MP3, PPT, PPTX, DOC, DOCX, JPG, PNG, EXE, APK</span>
+                </div>
             </div>
 
             <div class="form-group">
-                <label for="license">Licencia:</label>
+                <label for="license">
+                    Licencia
+                    <span class="info-icon">?
+                        <span class="tooltip">Seleccione el tipo de licencia para su recurso</span>
+                    </span>
+                </label>
                 <select id="license" name="license" required>
                     <option value="">Seleccionar licencia</option>
+                    <option value="Copyright">Copyright</option>
                     <option value="CC BY">CC BY - Atribución</option>
                     <option value="CC BY-SA">CC BY-SA - Atribución-CompartirIgual</option>
                     <option value="CC BY-ND">CC BY-ND - Atribución-SinDerivadas</option>
                     <option value="CC BY-NC">CC BY-NC - Atribución-NoComercial</option>
                     <option value="CC BY-NC-SA">CC BY-NC-SA - Atribución-NoComercial-CompartirIgual</option>
                     <option value="CC BY-NC-ND">CC BY-NC-ND - Atribución-NoComercial-SinDerivadas</option>
+                    <option value="Academic Free License">Academic Free License</option>
                     <option value="GPL">GPL - Licencia Pública General de GNU</option>
                     <option value="MIT">MIT License</option>
                     <option value="Apache">Apache License 2.0</option>
                     <option value="Public Domain">Dominio Público</option>
+                    <option value="DISTRIBUCION GRATUITA">Distribución Gratuita</option>
+                    <option value="Prohibida su venta">Prohibida su venta</option>
                 </select>
             </div>
             <div class="form-group">
-                <label for="visual_format">16. Formato Visual
+                <label for="visual_format">18. Formato Visual
                 <span class="info-icon">?
                         <span class="tooltip"></span>
                     </span>
@@ -161,7 +178,7 @@
                 <input type="text" id="visual_format" name="visual_format" required>
             </div>
             <div class="form-group">
-                <label for="target_user">17. Usuario al que está dirigido
+                <label for="target_user">19. Usuario al que está dirigido
                 <span class="info-icon">?
                         <span class="tooltip"></span>
                     </span>
@@ -169,7 +186,7 @@
                 <input type="text" id="target_user" name="target_user" required>
             </div>
             <div class="form-group">
-                <label for="skills_competencies">18. Destrezas, habilidades y/o competencias principales que atiende</label>
+                <label for="skills_competencies">20. Destrezas, habilidades y/o competencias principales que atiende</label>
                 <input type="text" id="skills_competencies" name="skills_competencies" required>
             </div>
             
