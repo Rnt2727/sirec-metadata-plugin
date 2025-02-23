@@ -884,7 +884,46 @@ function openEvaluationModal(resourceId, category) {
 <script>
 jQuery(document).ready(function($) {
 
-    // Add this to the existing jQuery script in resources-list.php
+    //DSpace upload buttom
+    $('.dspace-upload-btn').on('click', function() {
+            const resourceId = $(this).data('resource-id');
+            const title = $(this).data('title');
+            const description = $(this).data('description');
+            const fileUrl = $(this).data('file-url');
+            const publicationDate = $(this).data('publication-date');
+            
+            // Mostrar estado de carga
+            $(this).prop('disabled', true).html('<span class="loading-spinner"></span>Subiendo...');
+            
+            $.ajax({
+                url: ajax_object.ajax_url,
+                type: 'POST',
+                data: {
+                    action: 'upload_to_dspace',
+                    nonce: ajax_object.nonce,
+                    resource_id: resourceId,
+                    title: title,
+                    description: description,
+                    file_url: fileUrl,
+                    publication_date: publicationDate
+                },
+                success: function(response) {
+                    if(response.success) {
+                        alert('Recurso subido exitosamente a DSpace');
+                    } else {
+                        alert('Error al subir a DSpace: ' + response.data);
+                    }
+                },
+                error: function() {
+                    alert('Error en la conexión');
+                },
+                complete: function() {
+                    // Restaurar estado del botón
+                    const $btn = $('.dspace-upload-btn[data-resource-id="' + resourceId + '"]');
+                    $btn.prop('disabled', false).html('<span class="dashicons dashicons-upload"></span>Subir a DSpace');
+                }
+            });
+        });
 
 // Modal handling
 $('.evaluate-btn').on('click', function() {
