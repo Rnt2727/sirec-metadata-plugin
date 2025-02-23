@@ -20,6 +20,69 @@ class ERM_Form_Handler {
         add_action('wp_ajax_nopriv_reject_resource', array($this, 'handle_resource_rejection'));
 
         add_action('wp_ajax_save_evaluation', array($this, 'handle_evaluation_submission'));
+
+        add_action('wp_ajax_upload_to_dspace', array($this, 'handle_dspace_upload'));
+    }
+
+    public function handle_dspace_upload() {
+        check_ajax_referer('update_resource', 'nonce');
+        
+        if (!current_user_can('administrator')) {
+            wp_send_json_error('Acceso no autorizado');
+            return;
+        }
+    
+        try {
+            $resource_id = intval($_POST['resource_id']);
+            $metadata = $_POST['metadata'];
+            $file_url = $_POST['file_url'];
+            
+            // Descargar el archivo localmente
+            $temp_file = $this->download_file($file_url);
+            
+            if (!$temp_file) {
+                wp_send_json_error('Error al descargar el archivo');
+                return;
+            }
+    
+            // Inicializar DSpace y subir el archivo
+            $dspace = new ERM_DSpace();
+            $dspace->uploadItem($temp_file, $metadata);
+            
+            // Limpiar archivo temporal
+            unlink($temp_file);
+            
+            wp_send_json_success('Archivo subido exitosamente a DSpace');
+            
+        } catch (Exception $e) {
+            if (isset($temp_file) && file_exists($temp_file)) {
+                unlink($temp_file);
+            }
+            wp_send_json_error('Error al subir a DSpace: ' . $e->getMessage());
+        }
+    }
+    
+    private function download_file($url) {
+        $temp_file = tempnam(sys_get_temp_dir(), 'dspace_upload_');
+        
+        $ch = curl_init($url);
+        $fp = fopen($temp_file, 'wb');
+        
+        curl_setopt($ch, CURLOPT_FILE, $fp);
+        curl_setopt($ch, CURLOPT_HEADER, 0);
+        
+        curl_exec($ch);
+        
+        if(curl_errno($ch)) {
+            fclose($fp);
+            unlink($temp_file);
+            return false;
+        }
+        
+        curl_close($ch);
+        fclose($fp);
+        
+        return $temp_file;
     }
 
     public function handle_evaluation_submission() {
