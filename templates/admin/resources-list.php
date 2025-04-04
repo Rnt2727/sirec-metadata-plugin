@@ -616,6 +616,64 @@ tr.editing td {
 
 </style>
 
+<style>
+/* Estilos para los radio buttons en el modal de evaluación */
+.evaluation-item {
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--tutor-border-color);
+}
+
+.evaluation-item p {
+  margin: 5px 0;
+}
+
+.evaluation-options {
+  margin-top: 10px;
+}
+
+.evaluation-option {
+  display: inline-flex;
+  align-items: center;
+  margin-right: 15px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.evaluation-option input[type="radio"] {
+  margin-right: 5px;
+  /* Opcional: animación o estilos propios para el radio */
+}
+</style>
+
+<style>
+/* Opcional: reglas adicionales para mejorar el modal */
+.tutor-modal-content {
+  font-family: 'Nunito Sans', sans-serif;
+  color: var(--tutor-text-primary);
+  padding: 24px;
+  background-color: var(--tutor-bg-white);
+  border-radius: var(--tutor-border-radius);
+}
+
+.tutor-modal-header h3 {
+  margin: 0;
+}
+
+.tutor-modal-close {
+  font-size: 28px;
+  color: var(--tutor-text-secondary);
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.tutor-modal-close:hover {
+  color: var(--tutor-danger-color);
+}
+</style>
+
 <div class="tutor-wrap tutor-dashboard tutor-dashboard-content">
     <div class="tutor-fs-5 tutor-fw-medium tutor-color-black tutor-mb-24">
         <?php 
@@ -1069,50 +1127,58 @@ tr.editing td {
 
 <script>
 function loadCriteria(category) {
-    const criteriaContainer = document.getElementById('criteria-container');
-    const criteriaMatrixPHP = <?php echo json_encode($criteria_matrix); ?>;
+  const criteriaContainer = document.getElementById('criteria-container');
+  const criteriaMatrixPHP = <?php echo json_encode($criteria_matrix); ?>;
+  
+  const categoryIndex = {
+    'RC': 0,
+    'RAD': 1,
+    'RDC': 2,
+    'RL': 3,
+    'RTE': 4
+  };
+  
+  criteriaContainer.innerHTML = '';
+  
+  let index = 1;
+  for (const [criterion, values] of Object.entries(criteriaMatrixPHP)) {
+    const type = values[categoryIndex[category]];
     
-    const categoryIndex = {
-        'RC': 0,
-        'RAD': 1,
-        'RDC': 2,
-        'RL': 3,
-        'RTE': 4
-    };
-    
-    criteriaContainer.innerHTML = '';
-    
-    let index = 1;
-    for (const [criterion, values] of Object.entries(criteriaMatrixPHP)) {
-        const type = values[categoryIndex[category]];
-        
-        if (type !== 'NA') {
-            const criterionHtml = `
-                <div class="evaluation-item">
-                    <p><strong>${index}. ${criterion}</strong></p>
-                    <p class="criterion-type">(${type === 'I' ? 'Indispensable' : 'Valorado'})</p>
-                    <select name="criterion_${index - 1}" required>
-                        <option value="">Seleccione un puntaje</option>
-                        <option value="0.25">0.25</option>
-                        <option value="0.50">0.50</option>
-                        <option value="1.00">1.00</option>
-                    </select>
-                </div>
-            `;
-            criteriaContainer.innerHTML += criterionHtml;
-            index++;
-        }
+    if (type !== 'NA') {
+      const criterionHtml = `
+        <div class="evaluation-item">
+          <p><strong>${index}. ${criterion}</strong></p>
+          <p class="criterion-type">(${type === 'I' ? 'Indispensable' : 'Valorado'})</p>
+          <div class="evaluation-options">
+            <label class="evaluation-option">
+              <input type="radio" name="criterion_${index - 1}" value="0.25" required>
+              <span>Básico (0.25)</span>
+            </label>
+            <label class="evaluation-option">
+              <input type="radio" name="criterion_${index - 1}" value="0.50" required>
+              <span>Intermedio (0.50)</span>
+            </label>
+            <label class="evaluation-option">
+              <input type="radio" name="criterion_${index - 1}" value="1.00" required>
+              <span>Avanzado (1.00)</span>
+            </label>
+          </div>
+        </div>
+      `;
+      criteriaContainer.innerHTML += criterionHtml;
+      index++;
     }
-    
-    if (criteriaContainer.innerHTML === '') {
-        criteriaContainer.innerHTML = '<p>No hay criterios definidos para esta categoría.</p>';
-    }
+  }
+  
+  if (criteriaContainer.innerHTML === '') {
+    criteriaContainer.innerHTML = '<p>No hay criterios definidos para esta categoría.</p>';
+  }
 }
 
 function openEvaluationModal(resourceId, category) {
     document.getElementById('resource-id-eval').value = resourceId;
     document.getElementById('resource-category').value = category;
-    document.getElementById('evaluation-modal').style.display = 'block';
+	document.getElementById('evaluation-modal').classList.add('active');
     loadCriteria(category);
 }
 </script>
@@ -1160,6 +1226,7 @@ jQuery(document).ready(function($) {
     $('.evaluate-btn').on('click', function() {
         const resourceId = $(this).data('resource-id');
         const category = $(this).data('category');
+		openEvaluationModal(resourceId, category);
         $('#resource-id-eval').val(resourceId);
         $('#resource-category').val(category);
         $('#evaluation-modal').show();
@@ -1167,12 +1234,12 @@ jQuery(document).ready(function($) {
 
 
     $('.tutor-modal-close, .tutor-modal-overlay').on('click', function() {
-        $('#evaluation-modal').hide();
-    });
+    $('#evaluation-modal').removeClass('active');
+});
 
 $(window).on('click', function(event) {
     if ($(event.target).hasClass('tutor-modal-overlay')) {
-        $('#evaluation-modal').hide();
+        $('#evaluation-modal').removeClass('active');
     }
 });
 
